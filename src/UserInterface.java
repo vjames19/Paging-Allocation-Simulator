@@ -56,8 +56,6 @@ class UserInterface extends JFrame implements ActionListener
 	private JTextField FIFO_faults, FIFO_fr, LRU_faults, LRU_fr, SC_faults, SC_fr;
 	private PropertiesWindow propWin;
 	private TableInsertion fifoTI, lruTI, scTI;
-
-	// Program Variables
 	private String version = "1.00"; // v1.00 (release date)
 
 	public UserInterface()
