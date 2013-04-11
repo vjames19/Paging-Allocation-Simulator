@@ -81,6 +81,7 @@ public class TableInsertion extends PausableStopabbleThread{
 					System.out.println("Thread.sleep() throwing an exception.");
 				}
 				model.fireTableDataChanged();
+				
 			}
 		}
 	}
