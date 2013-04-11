@@ -1,3 +1,5 @@
+package com.github.pageallocation.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,27 +10,33 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
+import com.github.pageallocation.algorithms.AllocationStrategy;
+import com.github.pageallocation.gui.table.MyDefaultTableModel;
+import com.github.pageallocation.gui.table.PageFaultRenderer;
+import com.github.pageallocation.simulation.TableInsertion;
+
 public class SimulationPanel extends JPanel {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	JTable table;
+	private JTable table;
 	String algorithm;
 	String tooltipText;
 	JScrollPane sc;
 	JLabel label;
 	AllocationStrategy strategy;
-	JTextField faults, faultRate;
-	TableInsertion tableInsertion;
+	private JTextField faults;
+	private JTextField faultRate;
+	private TableInsertion tableInsertion;
 	static String[] columnNames = { "Frames", "A", "B", "C", "D", "E", "F", "G" };
 	static String[][] data = new String[4][8]; // Rows, Columns
 	static {
 		for (int i = 0; i < 4; i++)
 			data[i][0] = "" + i;
 	}
-	MyDefaultTableModel model;
+	private MyDefaultTableModel model;
 
 	public SimulationPanel(String algorithmName, String tooltipText,
 			AllocationStrategy strategy) {
@@ -46,14 +54,14 @@ public class SimulationPanel extends JPanel {
 		label.setPreferredSize(new Dimension(50, 25));
 		this.add(label);
 
-		model = new MyDefaultTableModel(data, columnNames);
-		table = new JTable(model);
-		table.setDefaultRenderer(Object.class, new PageFaultRenderer());
-		table.setCellSelectionEnabled(false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		setModel(new MyDefaultTableModel(data, columnNames));
+		setTable(new JTable(getModel()));
+		getTable().setDefaultRenderer(Object.class, new PageFaultRenderer());
+		getTable().setCellSelectionEnabled(false);
+		getTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		// table.setAutoCreateColumnsFromModel(false);
-		table.setEnabled(false);
-		sc = new JScrollPane(table);
+		getTable().setEnabled(false);
+		sc = new JScrollPane(getTable());
 		sc.setPreferredSize(new Dimension(600, 98));
 		sc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -72,20 +80,20 @@ public class SimulationPanel extends JPanel {
 		label = new JLabel("Page Faults:");
 		panelTop.add(label, BorderLayout.NORTH);
 
-		faults = new JTextField();
-		faults.setEditable(false);
-		faults.setBackground(Color.LIGHT_GRAY);
-		panelTop.add(faults, BorderLayout.CENTER);
+		setFaults(new JTextField());
+		getFaults().setEditable(false);
+		getFaults().setBackground(Color.LIGHT_GRAY);
+		panelTop.add(getFaults(), BorderLayout.CENTER);
 
 		JPanel panelBot = new JPanel();
 		panelBot.setLayout(new BorderLayout());
 		label = new JLabel("Fault Rate:");
 		panelBot.add(label, BorderLayout.NORTH);
 
-		faultRate = new JTextField();
-		faultRate.setEditable(false);
-		faultRate.setBackground(Color.LIGHT_GRAY);
-		panelBot.add(faultRate, BorderLayout.CENTER);
+		setFaultRate(new JTextField());
+		getFaultRate().setEditable(false);
+		getFaultRate().setBackground(Color.LIGHT_GRAY);
+		panelBot.add(getFaultRate(), BorderLayout.CENTER);
 
 		panelTotal.add(panelTop, BorderLayout.NORTH);
 		panelTotal.add(panelBot, BorderLayout.CENTER);
@@ -94,10 +102,50 @@ public class SimulationPanel extends JPanel {
 	}
 
 	public void clear() {
-		faults.setText("");
-		faultRate.setText("");
-		model.setDataVector(data, columnNames);
-		model.fireTableDataChanged();
+		getFaults().setText("");
+		getFaultRate().setText("");
+		getModel().setDataVector(data, columnNames);
+		getModel().fireTableDataChanged();
+	}
+
+	public MyDefaultTableModel getModel() {
+		return model;
+	}
+
+	public void setModel(MyDefaultTableModel model) {
+		this.model = model;
+	}
+
+	public TableInsertion getTableInsertion() {
+		return tableInsertion;
+	}
+
+	public void setTableInsertion(TableInsertion tableInsertion) {
+		this.tableInsertion = tableInsertion;
+	}
+
+	public JTextField getFaults() {
+		return faults;
+	}
+
+	public void setFaults(JTextField faults) {
+		this.faults = faults;
+	}
+
+	public JTextField getFaultRate() {
+		return faultRate;
+	}
+
+	public void setFaultRate(JTextField faultRate) {
+		this.faultRate = faultRate;
+	}
+
+	public JTable getTable() {
+		return table;
+	}
+
+	public void setTable(JTable table) {
+		this.table = table;
 	}
 
 }

@@ -1,9 +1,14 @@
+package com.github.pageallocation.simulation;
+
 import java.awt.Point;
 import java.awt.Rectangle;
 
 import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
+
+import com.github.pageallocation.gui.PropertiesWindow;
+import com.github.pageallocation.thread.PausableStopabbleThread;
 
 /*
  * This class handles adding data to the JTables. We use this class
@@ -12,15 +17,13 @@ import javax.swing.table.DefaultTableModel;
  * the delay by calling the sleep() method. We allow the user to set the delay
  * so that they can see, in real time, the data being added to the table.
  */
-public class TableInsertion extends PausableStopabbleThread{
+public class TableInsertion extends PausableStopabbleThread {
 	private JTable table;
 	private DefaultTableModel model;
 	private PropertiesWindow propWin;
 	private final long sleepTime;
 	private int frames, columns;
 	private int[][] result;
-
-
 
 	/**
 	 * When this thread is started, it inserts the specified data into the
@@ -57,7 +60,7 @@ public class TableInsertion extends PausableStopabbleThread{
 	public void run() {
 		for (int i = 1; i < columns; i++) {
 			for (int k = 0; k < frames; k++) {
-				if(stopRequested()){
+				if (stopRequested()) {
 					return;
 				}
 				scrollToVisible(table, k, i);
@@ -81,7 +84,7 @@ public class TableInsertion extends PausableStopabbleThread{
 					System.out.println("Thread.sleep() throwing an exception.");
 				}
 				model.fireTableDataChanged();
-				
+
 			}
 		}
 	}
@@ -100,10 +103,6 @@ public class TableInsertion extends PausableStopabbleThread{
 
 		rect.setLocation(rect.x - p.x, rect.y - p.y);
 		viewport.scrollRectToVisible(rect);
-	}
-	
-	public void stopInsertion(){
-		
 	}
 
 }

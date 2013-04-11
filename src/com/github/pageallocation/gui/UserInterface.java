@@ -1,3 +1,5 @@
+package com.github.pageallocation.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -36,13 +38,19 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
+import com.github.pageallocation.algorithms.AllocationStrategy;
+import com.github.pageallocation.algorithms.FIFOAllocation;
+import com.github.pageallocation.gui.table.MyDefaultTableModel;
+import com.github.pageallocation.simulation.SimulationManager;
+import com.github.pageallocation.simulation.TableInsertion;
+
 /*
  * This class holds the foundation of the program's Graphical
  * User Interface. The GUI is set up and displayed from this class.
  * This class also calls other classes and their methods in order to
  * display our data (such as our page allocations).
  */
-class UserInterface extends JFrame implements ActionListener {
+public class UserInterface extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JFrame f;
 	private Container contentPane;
@@ -451,7 +459,7 @@ class UserInterface extends JFrame implements ActionListener {
 		AllocationStrategy strategy = simulation.strategy;
 		strategy.clearStats();
 		int frames = frameSpinnerModel.getNumber().intValue();
-		int columns = simulation.table.getColumnCount();
+		int columns = simulation.getTable().getColumnCount();
 
 		if (s == null)
 			return;
@@ -459,13 +467,13 @@ class UserInterface extends JFrame implements ActionListener {
 		int[][] result = strategy.allocation(s, frames);
 		int faults = strategy.faults();
 
-		simulation.tableInsertion = new TableInsertion(simulation.table,
-				simulation.model, propWin, result, frames, columns, 0);
+		simulation.setTableInsertion(new TableInsertion(simulation.getTable(),
+				simulation.getModel(), propWin, result, frames, columns, 0));
 
 		DecimalFormat fmt = new DecimalFormat("###.##");
-		simulation.faults.setText(Integer.toString(faults));
-		simulation.faultRate.setText(fmt.format(strategy.faultRate(s.length,
-				faults)) + "%");
+		simulation.getFaults().setText(Integer.toString(faults));
+		simulation.getFaultRate().setText(
+				fmt.format(strategy.faultRate(s.length, faults)) + "%");
 
 	}
 
@@ -504,24 +512,24 @@ class UserInterface extends JFrame implements ActionListener {
 	private void updateSimulationColumns(int[] s, SimulationPanel sims,
 			Object[] headers) {
 
-		int columns = sims.table.getColumnCount() - 1;
+		int columns = sims.getTable().getColumnCount() - 1;
 		int tempLength = s.length;
 		int header = columns;
 
 		if (tempLength > columns) {
 			int i = 1;
 			while (tempLength > columns) {
-				addColumn(sims.table, header + i, null);
+				addColumn(sims.getTable(), header + i, null);
 				tempLength--;
 				i++;
 			}
 		} else if (tempLength < columns) {
 			while (tempLength < columns) {
-				removeColumnAndData(sims.table, columns);
+				removeColumnAndData(sims.getTable(), columns);
 				columns--;
 			}
 		}
-		sims.model.setColumnIdentifiers(headers);
+		sims.getModel().setColumnIdentifiers(headers);
 		// for (int i = 1; i <= s.length; i++) {
 		// updateColumnName(sims.table, i, Integer.toString(s[i - 1]));
 		//
@@ -535,18 +543,18 @@ class UserInterface extends JFrame implements ActionListener {
 	private void updateSimulationTablesRows() {
 		int frames = frameSpinnerModel.getNumber().intValue();
 		for (SimulationPanel sims : simulations) {
-			int rows = sims.table.getRowCount();
+			int rows = sims.getTable().getRowCount();
 			int tempRowCount = rows;
 
 			if (frames > rows) {
 				while (frames > rows) {
-					sims.model.addRow(new Object[] { tempRowCount });
+					sims.getModel().addRow(new Object[] { tempRowCount });
 					frames--;
 					tempRowCount++;
 				}
 			} else if (frames < rows) {
 				while (frames < rows) {
-					sims.model.removeRow(rows - 1);
+					sims.getModel().removeRow(rows - 1);
 					rows--;
 				}
 			} else {

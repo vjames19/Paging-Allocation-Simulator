@@ -1,3 +1,5 @@
+package com.github.pageallocation.gui;
+
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -19,20 +21,19 @@ import javax.swing.JTextField;
  * user to change program properties such as modifying the
  * delay of data being added to the JTables.
  */
-class PropertiesWindow extends JDialog implements ActionListener
-{
+public class PropertiesWindow extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private JTextField textfield;
 
-	public PropertiesWindow()
-	{
+	public PropertiesWindow() {
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		
+
 		c.add(northPanel(), BorderLayout.CENTER);
 		c.add(southPanel(), BorderLayout.SOUTH);
 
-		setIconImage(new ImageIcon(getClass().getResource("images/properties_icon.png")).getImage());
+		setIconImage(new ImageIcon(getClass().getResource(
+				"images/properties_icon.png")).getImage());
 		pack();
 		setLocation(setFrameCentered());
 		setResizable(false);
@@ -41,15 +42,14 @@ class PropertiesWindow extends JDialog implements ActionListener
 		setVisible(true);
 	}
 
-	private JPanel northPanel()
-	{
+	private JPanel northPanel() {
 		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEADING, 5, 10));
 
 		JLabel label;
 		label = new JLabel("Time Delay (ms):");
-		label.setToolTipText( "Time delay for displaying data in the table" );
+		label.setToolTipText("Time delay for displaying data in the table");
 		textfield = new JTextField();
-		textfield.setText( "0" );
+		textfield.setText("0");
 		textfield.setPreferredSize(new Dimension(100, 20));
 		p.add(label);
 		p.add(textfield);
@@ -57,8 +57,7 @@ class PropertiesWindow extends JDialog implements ActionListener
 		return p;
 	}
 
-	private JPanel southPanel()
-	{
+	private JPanel southPanel() {
 		JPanel p = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JButton button;
 
@@ -78,57 +77,50 @@ class PropertiesWindow extends JDialog implements ActionListener
 	/**
 	 * Centers the JFrame on the users screen.
 	 * 
-	 * @return returns a Point(x, y) where the JFrame will be centered
-	 * on the users screen.
+	 * @return returns a Point(x, y) where the JFrame will be centered on the
+	 *         users screen.
 	 */
-	private Point setFrameCentered()
-	{		
+	private Point setFrameCentered() {
 		Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-		int w = /*getSize().width*/ getWidth();
-		int h = /*getSize().height*/ getHeight();
-	    int x = (d.width - w) / 2;
-	    int y = (d.height - h) / 2;
-	    
-	    Point p = new Point(x, y);
+		int w = /* getSize().width */getWidth();
+		int h = /* getSize().height */getHeight();
+		int x = (d.width - w) / 2;
+		int y = (d.height - h) / 2;
+
+		Point p = new Point(x, y);
 		return p;
 	}
 
 	/*
 	 * Save the users preferences/properties
 	 */
-	private void save()
-	{
-		setDelay( Integer.parseInt(textfield.getText()) );
+	private void save() {
+		setDelay(Integer.parseInt(textfield.getText()));
 	}
 
 	/*
 	 * Returns the delay that has been set by the user. Default is 0.
 	 */
-	public int getDelay()
-	{
+	public int getDelay() {
 		return Integer.parseInt(textfield.getText());
 	}
 
 	/*
-	 * Sets the delay by resetting the textfield's text to
-	 * whatever the user has put into the textfield.
+	 * Sets the delay by resetting the textfield's text to whatever the user has
+	 * put into the textfield.
 	 */
-	public void setDelay(int d)
-	{
+	public void setDelay(int d) {
 		textfield.setText("" + d);
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e)
-	{
-		if (e.getActionCommand().equals("save"))
-		{
+	public void actionPerformed(ActionEvent e) {
+		if (e.getActionCommand().equals("save")) {
 			save();
 			dispose();
 			return;
 		}
-		if (e.getActionCommand().equals("cancel"))
-		{
+		if (e.getActionCommand().equals("cancel")) {
 			dispose();
 			return;
 		}

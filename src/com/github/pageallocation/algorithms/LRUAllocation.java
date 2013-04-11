@@ -1,8 +1,9 @@
+package com.github.pageallocation.algorithms;
 
 import java.util.Arrays;
 
 public class LRUAllocation implements AllocationStrategy {
-	private int page_faults;
+	private int pageFaults;
 
 	// Constructor.
 	public LRUAllocation() {
@@ -29,11 +30,11 @@ public class LRUAllocation implements AllocationStrategy {
 
 	// Returns the two-dimensional array of allocated frames.
 	public int faults() {
-		return page_faults;
+		return pageFaults;
 	}
 
 	public double faultRate(int references, int frames) {
-		return ((double) page_faults / references) * 100;
+		return ((double) pageFaults / references) * 100;
 	}
 
 	// Performs the LRU page allocation algorithm.
@@ -56,7 +57,7 @@ public class LRUAllocation implements AllocationStrategy {
 			if (i == 0) {
 				current_frames[0][0] = page_reference;
 				log("base case: " + page_reference + " inserted at 0x0.");
-				page_faults++;
+				pageFaults++;
 			} else {
 
 				boolean no_page_fault = false;
@@ -125,7 +126,7 @@ public class LRUAllocation implements AllocationStrategy {
 								+ " was replaced by " + page_reference
 								+ " at frame " + replace_frame);
 					}
-					page_faults++;
+					pageFaults++;
 				}
 			}
 
@@ -151,7 +152,7 @@ public class LRUAllocation implements AllocationStrategy {
 
 	@Override
 	public void clearStats() {
-		page_faults = 0;
+		pageFaults = 0;
 
 	}
 }

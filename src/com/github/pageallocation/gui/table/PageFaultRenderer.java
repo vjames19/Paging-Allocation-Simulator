@@ -1,9 +1,13 @@
+package com.github.pageallocation.gui.table;
+
 import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
+
+import com.github.pageallocation.util.Util;
 
 public class PageFaultRenderer extends DefaultTableCellRenderer {
 
@@ -35,13 +39,13 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 				return true;
 			}
 		} else if (column > 1) {
-			
+
 			if (!Util.isInteger(columnName)) {
 				return false;
 			}
-			
+
 			int rows = model.getRowCount();
-			if(isColumnEmpty(model, column, rows)){
+			if (isColumnEmpty(model, column, rows)) {
 				return false;
 			}
 			int searchColumn = column - 1;

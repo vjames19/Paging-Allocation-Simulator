@@ -1,6 +1,11 @@
+package com.github.pageallocation.simulation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import com.github.pageallocation.gui.SimulationPanel;
+import com.github.pageallocation.thread.PausableStopabbleThread;
 
 /**
  * Manages the simulations execution
@@ -28,7 +33,7 @@ public class SimulationManager {
 			return;
 		}
 		for (SimulationPanel sim : simulations) {
-			sim.tableInsertion.start();
+			sim.getTableInsertion().start();
 		}
 		setRunning(true);
 		observer = new SimulationsObserver();
@@ -42,7 +47,7 @@ public class SimulationManager {
 		}
 		setPaused(false);
 		for (SimulationPanel sim : simulations) {
-			sim.tableInsertion.play();
+			sim.getTableInsertion().play();
 		}
 		observer.play();
 
@@ -57,7 +62,7 @@ public class SimulationManager {
 		observer.stopWork();
 		observer = null;
 		for (SimulationPanel sim : simulations) {
-			sim.tableInsertion.stopWork();
+			sim.getTableInsertion().stopWork();
 		}
 
 	}
@@ -69,7 +74,7 @@ public class SimulationManager {
 		setPaused(true);
 		observer.pause();
 		for (SimulationPanel sim : simulations) {
-			sim.tableInsertion.pause();
+			sim.getTableInsertion().pause();
 		}
 
 	}
@@ -106,7 +111,7 @@ public class SimulationManager {
 			int finished = 0;
 			while (!stopRequested()) {
 				for (SimulationPanel sim : simulations) {
-					if (!sim.tableInsertion.isAlive()) {
+					if (!sim.getTableInsertion().isAlive()) {
 						finished++;
 					}
 				}

@@ -1,3 +1,5 @@
+package com.github.pageallocation.thread;
+
 public class PausableStopabbleThread extends Thread {
 	private boolean pause = false;
 	private boolean stop = false;
@@ -17,12 +19,12 @@ public class PausableStopabbleThread extends Thread {
 		pause = true;
 
 	}
-	
-	public synchronized void stopWork(){
+
+	public synchronized void stopWork() {
 		stop = true;
 	}
-	
-	protected final synchronized boolean stopRequested(){
+
+	protected final synchronized boolean stopRequested() {
 		return stop;
 	}
 
