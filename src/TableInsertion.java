@@ -12,8 +12,7 @@ import javax.swing.table.DefaultTableModel;
  * the delay by calling the sleep() method. We allow the user to set the delay
  * so that they can see, in real time, the data being added to the table.
  */
-public class TableInsertion extends Thread
-{
+public class TableInsertion extends PausableStopabbleThread{
 	private JTable table;
 	private DefaultTableModel model;
 	private PropertiesWindow propWin;
@@ -21,20 +20,30 @@ public class TableInsertion extends Thread
 	private int frames, columns;
 	private int[][] result;
 
+
+
 	/**
-	 * When this thread is started, it inserts the specified data into the specified
-	 * JTable at the specified speed (in milliseconds).
+	 * When this thread is started, it inserts the specified data into the
+	 * specified JTable at the specified speed (in milliseconds).
 	 * 
-	 * @param t the JTable to insert the data into
-	 * @param m the DefaultTableModel that needs to display the changed data
-	 * @param p the PropertiesWindow where we get the user's specified delay from
-	 * @param r the 2d array where our data is stored
-	 * @param f the number of frames the user has selected
-	 * @param c the number of columns the user has selected
-	 * @param ms the delay (in ms)
+	 * @param t
+	 *            the JTable to insert the data into
+	 * @param m
+	 *            the DefaultTableModel that needs to display the changed data
+	 * @param p
+	 *            the PropertiesWindow where we get the user's specified delay
+	 *            from
+	 * @param r
+	 *            the 2d array where our data is stored
+	 * @param f
+	 *            the number of frames the user has selected
+	 * @param c
+	 *            the number of columns the user has selected
+	 * @param ms
+	 *            the delay (in ms)
 	 */
-	public TableInsertion(JTable t, DefaultTableModel m, PropertiesWindow p, int[][] r, int f, int c, int ms)
-	{
+	public TableInsertion(JTable t, DefaultTableModel m, PropertiesWindow p,
+			int[][] r, int f, int c, int ms) {
 		table = t;
 		model = m;
 		propWin = p;
@@ -45,24 +54,28 @@ public class TableInsertion extends Thread
 	}
 
 	@Override
-	public void run()
-	{
-		for (int i = 1; i < columns; i++)
-		{
-			for (int k = 0; k < frames; k++)
-			{
+	public void run() {
+		for (int i = 1; i < columns; i++) {
+			for (int k = 0; k < frames; k++) {
+				if(stopRequested()){
+					return;
+				}
 				scrollToVisible(table, k, i);
-	
+
 				if (result[i][k] == -1)
 					table.getModel().setValueAt("X", k, i);
 				else
-					table.getModel().setValueAt(result[i][k], k, i);
-	
+					table.getModel().setValueAt("" + result[i][k], k, i);
+				// table.getModel().setValueAt(+ result[i][k], k, i); changed to
+				// string for the CellRenderer
+				// TODO RETURN TO ORIGINAL VALUE A INTEGER
 				try {
 					if (!(propWin == null) && propWin.getDelay() > 0)
 						sleep(propWin.getDelay());
 					else
 						sleep(sleepTime); // Default sleep time
+
+					pausePoint();
 				} catch (InterruptedException ie) {
 					ie.printStackTrace();
 					System.out.println("Thread.sleep() throwing an exception.");
@@ -73,19 +86,23 @@ public class TableInsertion extends Thread
 	}
 
 	/*
-	 * Moves the table's scrollbar to show the current column
-	 * and row having data added to it.
+	 * Moves the table's scrollbar to show the current column and row having
+	 * data added to it.
 	 */
-	private void scrollToVisible(JTable table, int row, int col)
-	{
+	private void scrollToVisible(JTable table, int row, int col) {
 		if (!(table.getParent() instanceof JViewport))
 			return;
 
-		JViewport viewport = (JViewport)table.getParent();
+		JViewport viewport = (JViewport) table.getParent();
 		Rectangle rect = table.getCellRect(row, col, true);
 		Point p = viewport.getViewPosition();
 
-		rect.setLocation(rect.x-p.x, rect.y-p.y);
-	    viewport.scrollRectToVisible(rect);
+		rect.setLocation(rect.x - p.x, rect.y - p.y);
+		viewport.scrollRectToVisible(rect);
 	}
+	
+	public void stopInsertion(){
+		
+	}
+
 }
