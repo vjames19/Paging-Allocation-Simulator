@@ -41,6 +41,7 @@ import javax.swing.table.TableColumn;
 import com.github.pageallocation.algorithms.AllocationStrategy;
 import com.github.pageallocation.algorithms.FIFOAllocation;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
+import com.github.pageallocation.resources.Resources;
 import com.github.pageallocation.simulation.SimulationManager;
 import com.github.pageallocation.simulation.TableInsertion;
 
@@ -80,8 +81,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			f.setSize(780, 560); // Set the size of the JFrame (width, height)
 		else
 			f.setSize(800, 560); // Set the size of the JFrame (width, height)
-		f.setIconImage(new ImageIcon(getClass().getResource(
-				"images/small_icon.png")).getImage());
+		f.setIconImage(Resources.SMALL.getIcon().getImage());
 		f.setLocation(setFrameCentered()); // Set the location of the JFrame on
 											// the screen
 		f.setResizable(true); // Frame cannot be resized
@@ -143,7 +143,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 		button = new JButton();
 		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(new ImageIcon(getClass().getResource("images/reset.png")));
+		button.setIcon(Resources.RESET.getIcon());
 		button.setToolTipText("Reset Simulation");
 		button.setFocusPainted(false);
 		button.setActionCommand("reset");
@@ -152,7 +152,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 		button = new JButton();
 		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(new ImageIcon(getClass().getResource("images/play.png")));
+		button.setIcon(Resources.PLAY.getIcon());
 		button.setToolTipText("Run Simulation");
 		button.setFocusPainted(false);
 		button.setActionCommand("run");
@@ -162,7 +162,7 @@ public class UserInterface extends JFrame implements ActionListener {
 		// TODO: Add stopping functionality
 		button = new JButton();
 		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(new ImageIcon(getClass().getResource("images/stop.png")));
+		button.setIcon(Resources.PAUSE.getIcon());
 		button.setToolTipText("Pause Simulation");
 		button.setFocusPainted(false);
 		button.setActionCommand("pause");
@@ -174,7 +174,7 @@ public class UserInterface extends JFrame implements ActionListener {
 		// TODO: change to pause icon
 		button = new JButton();
 		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(new ImageIcon(getClass().getResource("images/step.png")));
+		button.setIcon(Resources.STEP.getIcon());
 		button.setToolTipText("Step Through");
 		button.setFocusPainted(false);
 		button.setActionCommand("step");
@@ -244,8 +244,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private JPanel northWestPanel() {
 		JPanel p = new JPanel();
-		ImageIcon i = new ImageIcon(getClass().getResource(
-				"images/page_allocation_simulator.png"));
+		ImageIcon i = Resources.SIMULATOR.getIcon();
 		JLabel label = new JLabel(i);
 
 		JLabel buffer = new JLabel();
@@ -283,22 +282,19 @@ public class UserInterface extends JFrame implements ActionListener {
 
 		// JMenuItem's
 		run = new JMenuItem("Run");
-		run.setIcon(new ImageIcon(getClass().getResource("images/play.png")));
+		run.setIcon(Resources.PLAY.getIcon());
 		stop = new JMenuItem("Stop");
 		stop.setEnabled(true);
-		stop.setIcon(new ImageIcon(getClass().getResource("images/stop.png")));
+		stop.setIcon(Resources.STOP.getIcon());
 		reset = new JMenuItem("Reset");
-		reset.setIcon(new ImageIcon(getClass().getResource("images/reset.png")));
+		reset.setIcon(Resources.RESET.getIcon());
 		properties = new JMenuItem("Properties");
-		properties.setIcon(new ImageIcon(getClass().getResource(
-				"images/properties_icon.png")));
+		properties.setIcon(Resources.PROPERTIES.getIcon());
 		exit = new JMenuItem("Exit");
 		help = new JMenuItem("Help");
-		help.setIcon(new ImageIcon(getClass().getResource(
-				"images/help_icon.png")));
+		help.setIcon(Resources.HELP.getIcon());
 		about = new JMenuItem("About");
-		about.setIcon(new ImageIcon(getClass().getResource(
-				"images/exclamation_icon.png")));
+		about.setIcon(Resources.EXCLAMATION.getIcon());
 
 		// Add JMenuItem's to the JMenu's
 		fileMenu.add(run);

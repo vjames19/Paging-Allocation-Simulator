@@ -68,7 +68,7 @@ public class SimulationManager {
 	}
 
 	public void pause() {
-		if (!isRunning() && isPaused()) {
+		if (!isRunning() || isPaused()) {
 			return;
 		}
 		setPaused(true);
