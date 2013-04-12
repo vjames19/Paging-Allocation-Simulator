@@ -16,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import com.github.pageallocation.resources.Resources;
+
 /*
  * This class constructs a modal dialog box that allows the
  * user to change program properties such as modifying the
@@ -32,8 +34,7 @@ public class PropertiesWindow extends JDialog implements ActionListener {
 		c.add(northPanel(), BorderLayout.CENTER);
 		c.add(southPanel(), BorderLayout.SOUTH);
 
-		setIconImage(new ImageIcon(getClass().getResource(
-				"images/properties_icon.png")).getImage());
+		setIconImage(Resources.PROPERTIES.getIcon().getImage());
 		pack();
 		setLocation(setFrameCentered());
 		setResizable(false);
