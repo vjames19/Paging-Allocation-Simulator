@@ -15,17 +15,13 @@ import com.github.pageallocation.thread.PausableStopabbleThread;
  */
 public class SimulationManager {
 
-	private List<SimulationPanel> simulations;
+	private final List<SimulationPanel> simulations;
 	private boolean paused = false;
 	private boolean running = false;
 	private volatile PausableStopabbleThread observer;
 
-	public SimulationManager() {
-		simulations = new ArrayList<>();
-	}
-
 	public SimulationManager(List<SimulationPanel> simulations) {
-		this.simulations = Collections.unmodifiableList(simulations);
+		this.simulations = Collections.unmodifiableList(new ArrayList<>(simulations));
 	}
 
 	public void start() {
@@ -83,6 +79,7 @@ public class SimulationManager {
 		this.paused = b;
 
 	}
+	
 
 	private synchronized boolean isPaused() {
 		return paused;
