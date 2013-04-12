@@ -110,7 +110,7 @@ public class SecondChanceAllocation implements AllocationStrategy {
 				// If is found then the location is returned if not, -1 is
 				// returned.
 				if (k == frames - 1
-						&& replacement.search(references[i - 1]) == false) {
+						&& !replacement.search(references[i - 1])) {
 					int location = dirty.findReplacement(frames);
 
 					// If all the elements have dirty bits of 1 after a search

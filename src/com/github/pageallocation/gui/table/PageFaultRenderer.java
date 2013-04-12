@@ -33,11 +33,8 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 			return false;
 		}
 		if (column == 1) {
-			if (columnName.equalsIgnoreCase("A")) {
-				return false;
-			} else {
-				return true;
-			}
+			return columnName.equalsIgnoreCase("A");
+
 		} else if (column > 1) {
 
 			if (!Util.isInteger(columnName)) {
