@@ -2,15 +2,16 @@ package com.github.pageallocation.algorithms;
 
 import java.util.Arrays;
 
-public class LRUAllocation implements AllocationStrategy {
-	private int pageFaults;
+public class LRUAllocation extends AbstractStrategy {
+
 
 	// Constructor.
 	public LRUAllocation() {
 	}
 
 	// Returns the two-dimensional array of allocated frames.
-	public int[][] allocation(int[] references, int frames) {
+	@Override
+	public int[][] allocation() {
 		int[][] allocation = allocate_frames(references, frames);
 		// add blank column at front row to coincide with other algorithms
 		int[][] temp = new int[references.length + 1][frames];
@@ -26,15 +27,6 @@ public class LRUAllocation implements AllocationStrategy {
 		}
 
 		return temp;
-	}
-
-	// Returns the two-dimensional array of allocated frames.
-	public int faults() {
-		return pageFaults;
-	}
-
-	public double faultRate(int references, int frames) {
-		return ((double) pageFaults / references) * 100;
 	}
 
 	// Performs the LRU page allocation algorithm.
@@ -57,7 +49,7 @@ public class LRUAllocation implements AllocationStrategy {
 			if (i == 0) {
 				current_frames[0][0] = page_reference;
 				log("base case: " + page_reference + " inserted at 0x0.");
-				pageFaults++;
+				pageFault++;
 			} else {
 
 				boolean no_page_fault = false;
@@ -126,7 +118,7 @@ public class LRUAllocation implements AllocationStrategy {
 								+ " was replaced by " + page_reference
 								+ " at frame " + replace_frame);
 					}
-					pageFaults++;
+					pageFault++;
 				}
 			}
 
@@ -150,9 +142,4 @@ public class LRUAllocation implements AllocationStrategy {
 		// TODO delete
 	}
 
-	@Override
-	public void clearStats() {
-		pageFaults = 0;
-
-	}
 }
