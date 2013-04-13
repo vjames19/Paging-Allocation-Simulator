@@ -40,7 +40,8 @@ public class InsertionSimulation implements Simulation {
 		this(t, m, null, 0, 0);
 	}
 
-	public InsertionSimulation(JTable t, DefaultTableModel m, int[][] r, int f, int c) {
+	public InsertionSimulation(JTable t, DefaultTableModel m, int[][] r, int f,
+			int c) {
 		table = t;
 		model = m;
 		setParams(r, f, c);
@@ -63,11 +64,11 @@ public class InsertionSimulation implements Simulation {
 		viewport.scrollRectToVisible(rect);
 	}
 
-	public  synchronized  boolean hasMoreSteps() {
+	public synchronized boolean hasMoreSteps() {
 		return numberOfSteps > 0;
 	}
 
-	public  synchronized  void step() {
+	public synchronized void step() {
 		if (hasMoreSteps()) {
 
 			scrollToVisible(table, k, i);
@@ -78,12 +79,13 @@ public class InsertionSimulation implements Simulation {
 				table.getModel().setValueAt("" + result[i][k], k, i);
 			// table.getModel().setValueAt(+ result[i][k], k, i); changed to
 			// string for the CellRenderer
-			if(k == frames -1){
-				k =0;
+			if (k == frames - 1) {
+				k = 0;
 				i++;
-			}else{
+			} else {
 				k++;
 			}
+
 			numberOfSteps--;
 			System.out.printf("i %d k %d %s", i, k, table);
 			model.fireTableDataChanged();
@@ -91,15 +93,15 @@ public class InsertionSimulation implements Simulation {
 
 	}
 
-	public  synchronized  void setParams(int[][] r, int f, int c) {
+	public synchronized void setParams(int[][] r, int f, int c) {
 		result = r;
 		frames = f;
 		columns = c;
 		numberOfSteps = (columns - 1) * frames;
 	}
-	
-	public synchronized void clearParams(){
-		setParams(null,0,0);
+
+	public synchronized void clearParams() {
+		setParams(null, 0, 0);
 	}
 
 }

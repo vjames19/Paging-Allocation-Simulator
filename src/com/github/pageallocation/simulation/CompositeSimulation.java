@@ -6,10 +6,12 @@ import java.util.Iterator;
 import java.util.List;
 
 public class CompositeSimulation implements Simulation {
-	
+
 	private final List<Simulation> simulations;
-	public CompositeSimulation(List<Simulation> simulations){
-		this.simulations = Collections.synchronizedList(new ArrayList<>(simulations));
+
+	public CompositeSimulation(List<Simulation> simulations) {
+		this.simulations = Collections.synchronizedList(new ArrayList<>(
+				simulations));
 	}
 
 	@Override
@@ -29,9 +31,9 @@ public class CompositeSimulation implements Simulation {
 				it.remove();
 			}
 		}
-		
+
+		System.out.println(sim);
+
 	}
-	
-	
 
 }
