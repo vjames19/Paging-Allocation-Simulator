@@ -9,9 +9,8 @@ package com.github.pageallocation.algorithms;
  * each page reference is made. It is also capable of returning the number of page faults that
  * occurred during a specific run through the algorithm or at any point during it. 
  */
-public class SecondChanceAllocation implements AllocationStrategy {
+public class SecondChanceAllocation extends AbstractStrategy{
 	// Initialize a global variable to keep track of the page faults
-	private int pageFault = 0;
 
 	public SecondChanceAllocation() {
 
@@ -25,7 +24,7 @@ public class SecondChanceAllocation implements AllocationStrategy {
 	 * @see AllocationStrategy#retAllocation(int[], int)
 	 */
 	@Override
-	public int[][] allocation(int[] references, int frames) {
+	public int[][] allocation() {
 
 		// A 2D array is created to hold all the references for the entire
 		// algorithm.
@@ -163,36 +162,6 @@ public class SecondChanceAllocation implements AllocationStrategy {
 
 		return allocation;
 	}
+	
 
-	// This function returns the number of page faults counted.
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see AllocationStrategy#retFault()
-	 */
-	@Override
-	public int faults() {
-		return pageFault;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see AllocationStrategy#faultRate(int, int)
-	 */
-	@Override
-	public double faultRate(int refs, int f) {
-		double rate;
-		int faults = f;
-
-		rate = (((double) faults / refs) * 100);
-
-		return rate;
-	}
-
-	@Override
-	public void clearStats() {
-		pageFault = 0;
-
-	}
 }

@@ -9,17 +9,12 @@ package com.github.pageallocation.algorithms;
  * each page reference is made. It is also capable of returning the number of page faults that
  * occurred during a specific run through the algorithm or at any point during it. 
  */
-public class FIFOAllocation implements AllocationStrategy {
-	// Initialize a global variable to keep track of the page faults
-	private int pageFault = 0;
-
-	public FIFOAllocation() {
-
-	}
+public class FIFOAllocation extends AbstractStrategy {
 
 	// The primary method performs all the algorithmic replacements and fills a
 	// 2D array
-	public int[][] allocation(int[] references, int frames) {
+	@Override
+	public int[][] allocation() {
 
 		// A 2D array is created to hold all the references for the entire
 		// algorithm.
@@ -105,23 +100,4 @@ public class FIFOAllocation implements AllocationStrategy {
 		return allocation;
 	}
 
-	// This function returns the number of page faults counted.
-	public int faults() {
-		return pageFault;
-	}
-
-	public double faultRate(int refs, int f) {
-		double rate;
-		int faults = f;
-
-		rate = (((double) faults / refs) * 100);
-
-		return rate;
-	}
-
-	@Override
-	public void clearStats() {
-		pageFault = 0;
-
-	}
 }

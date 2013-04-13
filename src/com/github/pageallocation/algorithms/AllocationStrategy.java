@@ -1,16 +1,20 @@
 package com.github.pageallocation.algorithms;
 
-public interface AllocationStrategy {
+import java.util.concurrent.Callable;
+
+public interface AllocationStrategy extends Callable<int[][]>{
 
 	// The primary method performs all the algorithmic replacements and fills a
 	// 2D array
-	public int[][] allocation(int[] references, int frames);
+	public int[][] allocation();
 
 	// This function returns the number of page faults counted.
 	public int faults();
 
-	public double faultRate(int refs, int f);
+	public double faultRate();
 
 	public void clearStats();
+	
+	public void setParams(int[] references, int frames);
 
 }
