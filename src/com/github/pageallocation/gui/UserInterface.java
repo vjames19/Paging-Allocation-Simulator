@@ -69,7 +69,6 @@ public class UserInterface extends JFrame implements ActionListener {
 	private List<SimulationPanel> simulationPanels = new ArrayList<>(3);
 	private SimulationRunnerManager simManager = new SimulationRunnerManager();
 	private JButton play, pause, step;
-	private SimulationObserver observer;
 
 	// Program Variables
 	private String version = "1.00"; // v1.00 (release date)
@@ -701,8 +700,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private void stopSimulation() {
 		simManager.stop();
-		observer.cancel(true);
-		observer = null;
+
 
 	}
 
