@@ -9,7 +9,7 @@ package com.github.pageallocation.algorithms;
  * each page reference is made. It is also capable of returning the number of page faults that
  * occurred during a specific run through the algorithm or at any point during it. 
  */
-public class SecondChanceAllocation extends AbstractStrategy{
+public class SecondChanceAllocation extends AbstractStrategy {
 	// Initialize a global variable to keep track of the page faults
 
 	public SecondChanceAllocation() {
@@ -108,8 +108,7 @@ public class SecondChanceAllocation extends AbstractStrategy{
 				// dirty bit of 0.
 				// If is found then the location is returned if not, -1 is
 				// returned.
-				if (k == frames - 1
-						&& !replacement.search(references[i - 1])) {
+				if (k == frames - 1 && !replacement.search(references[i - 1])) {
 					int location = dirty.findReplacement(frames);
 
 					// If all the elements have dirty bits of 1 after a search
@@ -162,6 +161,5 @@ public class SecondChanceAllocation extends AbstractStrategy{
 
 		return allocation;
 	}
-	
 
 }

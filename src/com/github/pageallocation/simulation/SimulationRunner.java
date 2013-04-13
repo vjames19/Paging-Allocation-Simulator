@@ -1,9 +1,5 @@
 package com.github.pageallocation.simulation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import com.github.pageallocation.gui.PropertiesWindow;
 import com.github.pageallocation.thread.PausableStopabbleThread;
 
@@ -13,8 +9,7 @@ public class SimulationRunner extends PausableStopabbleThread {
 	private long sleepTime;
 	private PropertiesWindow propWin;
 
-	public SimulationRunner(Simulation simulation,
-			PropertiesWindow propWin) {
+	public SimulationRunner(Simulation simulation, PropertiesWindow propWin) {
 		this.simulation = simulation;
 		this.sleepTime = 0;
 		this.propWin = propWin;
@@ -42,7 +37,5 @@ public class SimulationRunner extends PausableStopabbleThread {
 
 		}
 	}
-	
-
 
 }

@@ -2,7 +2,7 @@ package com.github.pageallocation.algorithms;
 
 import java.util.concurrent.Callable;
 
-public interface AllocationStrategy extends Callable<int[][]>{
+public interface AllocationStrategy extends Callable<int[][]> {
 
 	// The primary method performs all the algorithmic replacements and fills a
 	// 2D array
@@ -14,7 +14,7 @@ public interface AllocationStrategy extends Callable<int[][]>{
 	public double faultRate();
 
 	public void clearStats();
-	
+
 	public void setParams(int[] references, int frames);
 
 }

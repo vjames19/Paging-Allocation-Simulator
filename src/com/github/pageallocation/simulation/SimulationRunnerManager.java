@@ -18,10 +18,11 @@ public class SimulationRunnerManager {
 	private volatile PausableStopabbleThread observer;
 
 	public SimulationRunnerManager() {
-		this(null,null);
+		this(null, null);
 	}
 
-	public SimulationRunnerManager(Simulation simulation, PropertiesWindow propWin) {
+	public SimulationRunnerManager(Simulation simulation,
+			PropertiesWindow propWin) {
 		this.simulation = simulation;
 		this.runner = new SimulationRunner(simulation, propWin);
 	}
@@ -59,20 +60,20 @@ public class SimulationRunnerManager {
 	}
 
 	public synchronized void step() {
-		if(isRunning()){
+		if (isRunning()) {
 			pause();
 		}
-		
-		if(simulation.hasMoreSteps()){
+
+		if (simulation.hasMoreSteps()) {
 			simulation.step();
-		}else{
+		} else {
 			setRunning(false);
 			clearThreads();
 		}
-		
+
 	}
-	
-	private void clearThreads(){
+
+	private void clearThreads() {
 		observer.requestStop();
 		observer = null;
 		runner.requestStop();
@@ -103,8 +104,8 @@ public class SimulationRunnerManager {
 	private synchronized void setRunning(boolean running) {
 		this.running = running;
 	}
-	
-	public SimulationRunner getSimulationRunner(){
+
+	public SimulationRunner getSimulationRunner() {
 		return runner;
 	}
 
@@ -119,10 +120,10 @@ public class SimulationRunnerManager {
 		@Override
 		public void run() {
 			while (!stopRequested() && !simulation.hasMoreSteps()) {
-				
+
 				pausePoint();
 			}
-			
+
 			System.out.println("finished simulation");
 			setRunning(false);
 			clearThreads();

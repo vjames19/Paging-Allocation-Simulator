@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 public class LRUAllocation extends AbstractStrategy {
 
-
 	// Constructor.
 	public LRUAllocation() {
 	}
