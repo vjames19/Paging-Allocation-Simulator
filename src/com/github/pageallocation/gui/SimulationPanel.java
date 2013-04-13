@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 import com.github.pageallocation.algorithms.AllocationStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.gui.table.PageFaultRenderer;
-import com.github.pageallocation.simulation.TableInsertion;
+import com.github.pageallocation.simulation.InsertionSimulation;
 
 public class SimulationPanel extends JPanel {
 
@@ -26,10 +26,10 @@ public class SimulationPanel extends JPanel {
 	String tooltipText;
 	JScrollPane sc;
 	JLabel label;
-	AllocationStrategy strategy;
+	private AllocationStrategy strategy;
+	private InsertionSimulation simulation;
 	private JTextField faults;
 	private JTextField faultRate;
-	private TableInsertion tableInsertion;
 	static String[] columnNames = { "Frames", "A", "B", "C", "D", "E", "F", "G" };
 	static String[][] data = new String[4][8]; // Rows, Columns
 	static {
@@ -47,7 +47,7 @@ public class SimulationPanel extends JPanel {
 	private void init(String algorithmName, String toolTipText,
 			AllocationStrategy strategy) {
 		this.algorithm = algorithmName;
-		this.strategy = strategy;
+		this.setStrategy(strategy);
 
 		label = new JLabel(algorithmName);
 		label.setToolTipText(tooltipText);
@@ -65,6 +65,8 @@ public class SimulationPanel extends JPanel {
 		sc.setPreferredSize(new Dimension(600, 98));
 		sc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		simulation = new InsertionSimulation(table, model);
 		this.add(sc);
 		this.add(pageFaultsDisplay(), BorderLayout.EAST);
 
@@ -106,6 +108,8 @@ public class SimulationPanel extends JPanel {
 		getFaultRate().setText("");
 		getModel().setDataVector(data, columnNames);
 		getModel().fireTableDataChanged();
+		simulation.clearParams();
+		strategy.clearStats();
 	}
 
 	public MyDefaultTableModel getModel() {
@@ -114,14 +118,6 @@ public class SimulationPanel extends JPanel {
 
 	public void setModel(MyDefaultTableModel model) {
 		this.model = model;
-	}
-
-	public TableInsertion getTableInsertion() {
-		return tableInsertion;
-	}
-
-	public void setTableInsertion(TableInsertion tableInsertion) {
-		this.tableInsertion = tableInsertion;
 	}
 
 	public JTextField getFaults() {
@@ -146,6 +142,22 @@ public class SimulationPanel extends JPanel {
 
 	public void setTable(JTable table) {
 		this.table = table;
+	}
+
+	InsertionSimulation getSimulation() {
+		return simulation;
+	}
+
+	void setSimulation(InsertionSimulation simulation) {
+		this.simulation = simulation;
+	}
+
+	AllocationStrategy getStrategy() {
+		return strategy;
+	}
+
+	void setStrategy(AllocationStrategy strategy) {
+		this.strategy = strategy;
 	}
 
 }

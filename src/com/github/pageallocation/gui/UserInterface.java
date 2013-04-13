@@ -16,8 +16,8 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -35,16 +35,22 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import com.github.pageallocation.algorithms.AllocationStrategy;
 import com.github.pageallocation.algorithms.FIFOAllocation;
+import com.github.pageallocation.algorithms.LRUAllocation;
+import com.github.pageallocation.algorithms.SecondChanceAllocation;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.resources.Resources;
-import com.github.pageallocation.simulation.SimulationManager;
-import com.github.pageallocation.simulation.TableInsertion;
-
+import com.github.pageallocation.simulation.CompositeSimulation;
+import com.github.pageallocation.simulation.InsertionSimulation;
+import com.github.pageallocation.simulation.Simulation;
+import com.github.pageallocation.simulation.SimulationRunnerManager;
+import com.github.pageallocation.util.Util;
+//TODO: Send event from simulation manager; Observe the simulation manager state; manage buttons state
 /*
  * This class holds the foundation of the program's Graphical
  * User Interface. The GUI is set up and displayed from this class.
@@ -52,6 +58,7 @@ import com.github.pageallocation.simulation.TableInsertion;
  * display our data (such as our page allocations).
  */
 public class UserInterface extends JFrame implements ActionListener {
+	private static final int MINIMUM_REFERENCE_LENGTH = 7;
 	private static final long serialVersionUID = 1L;
 	private JFrame f;
 	private Container contentPane;
@@ -59,15 +66,16 @@ public class UserInterface extends JFrame implements ActionListener {
 	private SpinnerNumberModel strLengthModel, frameSpinnerModel,
 			rangeSpinnerModel;
 	private PropertiesWindow propWin;
-	private List<SimulationPanel> simulations = new ArrayList<>(3);
-	private SimulationManager simManager;
+	private List<SimulationPanel> simulationPanels = new ArrayList<>(3);
+	private SimulationRunnerManager simManager = new SimulationRunnerManager();
+	private JButton play, pause, step;
+	private SimulationObserver observer;
 
 	// Program Variables
 	private String version = "1.00"; // v1.00 (release date)
 
 	public UserInterface() {
-		createSimulations();
-		simManager = new SimulationManager(simulations);
+		createSimulationPanels();
 		f = new JFrame();
 		f.setTitle("Page Allocation Simulator"); // Set the title of the JFrame
 		contentPane = f.getContentPane();
@@ -92,13 +100,13 @@ public class UserInterface extends JFrame implements ActionListener {
 		f.setVisible(true); // JFrame must be visible to see it
 	}
 
-	private void createSimulations() {
-		simulations.add(new SimulationPanel("FIFO", "First in First Out",
+	private void createSimulationPanels() {
+		simulationPanels.add(new SimulationPanel("FIFO", "First in First Out",
 				new FIFOAllocation()));
-		// simulations.add(new SimulationPanel("SC", "Second-chance", new
-		// SecondChanceAllocation()));
-		// simulations.add(new SimulationPanel("LRU", "Least Recently Used", new
-		// LRUAllocation()));
+		simulationPanels.add(new SimulationPanel("SC", "Second-chance",
+				new SecondChanceAllocation()));
+		simulationPanels.add(new SimulationPanel("LRU", "Least Recently Used",
+				new LRUAllocation()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
 		// FIFOAllocation()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
@@ -150,37 +158,37 @@ public class UserInterface extends JFrame implements ActionListener {
 		button.addActionListener(this);
 		south.add(button);
 
-		button = new JButton();
-		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(Resources.PLAY.getIcon());
-		button.setToolTipText("Run Simulation");
-		button.setFocusPainted(false);
-		button.setActionCommand("run");
-		button.addActionListener(this);
-		south.add(button);
+		play = new JButton();
+		play.setPreferredSize(new Dimension(85, 25));
+		play.setIcon(Resources.PLAY.getIcon());
+		play.setToolTipText("Run Simulation");
+		play.setFocusPainted(false);
+		play.setActionCommand("run");
+		play.addActionListener(this);
+		south.add(play);
 
 		// TODO: Add stopping functionality
-		button = new JButton();
-		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(Resources.PAUSE.getIcon());
-		button.setToolTipText("Pause Simulation");
-		button.setFocusPainted(false);
-		button.setActionCommand("pause");
-		button.addActionListener(this);
-		button.setEnabled(true);
-		south.add(button);
+		pause = new JButton();
+		pause.setPreferredSize(new Dimension(85, 25));
+		pause.setIcon(Resources.PAUSE.getIcon());
+		pause.setToolTipText("Pause Simulation");
+		pause.setFocusPainted(false);
+		pause.setActionCommand("pause");
+		pause.addActionListener(this);
+		pause.setEnabled(false);
+		south.add(pause);
 
 		// TODO: Add stepping functionality
 		// TODO: change to pause icon
-		button = new JButton();
-		button.setPreferredSize(new Dimension(85, 25));
-		button.setIcon(Resources.STEP.getIcon());
-		button.setToolTipText("Step Through");
-		button.setFocusPainted(false);
-		button.setActionCommand("step");
-		button.addActionListener(this);
-		button.setEnabled(false);
-		south.add(button);
+		step = new JButton();
+		step.setPreferredSize(new Dimension(85, 25));
+		step.setIcon(Resources.STEP.getIcon());
+		step.setToolTipText("Step Through");
+		step.setFocusPainted(false);
+		step.setActionCommand("step");
+		step.addActionListener(this);
+		step.setEnabled(true);
+		south.add(step);
 
 		button = new JButton("Generate");
 		button.setPreferredSize(new Dimension(110, 25));
@@ -225,9 +233,10 @@ public class UserInterface extends JFrame implements ActionListener {
 		label.setToolTipText("Numbers to Generate");
 		west.add(label);
 
-		strLengthModel = new SpinnerNumberModel(7, 7, 99, 1); // Initial, Min,
-																// Max,
-																// Increment
+		strLengthModel = new SpinnerNumberModel(MINIMUM_REFERENCE_LENGTH,
+				MINIMUM_REFERENCE_LENGTH, 99, 1); // Initial, Min,
+		// Max,
+		// Increment
 		spinner = new JSpinner(strLengthModel);
 		if (getOS().contains("mac"))
 			spinner.setPreferredSize(new Dimension(45, 25)); // width, height
@@ -258,7 +267,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private JPanel centerPanel() {
 		JPanel topLayer = new JPanel(new FlowLayout());
-		for (SimulationPanel alg : simulations) {
+		for (SimulationPanel alg : simulationPanels) {
 			topLayer.add(alg);
 		}
 
@@ -354,30 +363,6 @@ public class UserInterface extends JFrame implements ActionListener {
 	}
 
 	/**
-	 * Generates a random string of numbers between 1 and 30 (numbers are
-	 * separated by commas).
-	 * 
-	 * @param length
-	 *            the number of random numbers to generate for the string
-	 * @return the string of random numbers
-	 */
-	private String generateRandomPageReference(int length, int range) {
-		String s = "";
-		Random gen = new Random();
-
-		for (int i = 0; i < length; i++) {
-			int r = gen.nextInt(range + 1);
-			if (i != length - 1)
-				s = s + ("" + r + ", "); // Places commas between numbers in the
-											// string
-			else
-				s = s + ("" + r); // End the string with no comma
-		}
-
-		return s;
-	}
-
-	/**
 	 * Finds the name of the Operating System that the user is currently using.
 	 * Helpful function for writing platform specific code.
 	 * 
@@ -451,25 +436,39 @@ public class UserInterface extends JFrame implements ActionListener {
 		return i;
 	}
 
-	private void populateSimulationTable(SimulationPanel simulation, int[] s) {
-		AllocationStrategy strategy = simulation.strategy;
-		strategy.clearStats();
-		int frames = frameSpinnerModel.getNumber().intValue();
-		int columns = simulation.getTable().getColumnCount();
-
+	private void populateSimulationTable(int[] s) {
 		if (s == null)
 			return;
 
-		int[][] result = strategy.allocation(s, frames);
-		int faults = strategy.faults();
-
-		simulation.setTableInsertion(new TableInsertion(simulation.getTable(),
-				simulation.getModel(), propWin, result, frames, columns, 0));
-
+		if (simManager != null) {
+			simManager.stop();
+		}
+		List<Simulation> simulations = new ArrayList<>(
+				this.simulationPanels.size());
+		AllocationStrategy strategy = null;
 		DecimalFormat fmt = new DecimalFormat("###.##");
-		simulation.getFaults().setText(Integer.toString(faults));
-		simulation.getFaultRate().setText(
-				fmt.format(strategy.faultRate(s.length, faults)) + "%");
+		int frames = frameSpinnerModel.getNumber().intValue();
+
+		for (SimulationPanel simulationPanel : simulationPanels) {
+
+			int columns = simulationPanel.getTable().getColumnCount();
+			strategy = simulationPanel.getStrategy();
+			strategy.clearStats();
+			strategy.setParams(s, frames);
+			int[][] result = strategy.allocation();
+			int faults = strategy.faults();
+
+			InsertionSimulation sim = simulationPanel.getSimulation();
+			sim.setParams(result, frames, columns);
+			simulations.add(sim);
+
+			simulationPanel.getFaults().setText(Integer.toString(faults));
+			simulationPanel.getFaultRate().setText(
+					fmt.format(strategy.faultRate()) + "%");
+		}
+
+		simManager = new SimulationRunnerManager(new CompositeSimulation(
+				simulations), propWin);
 
 	}
 
@@ -499,7 +498,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	 */
 	private void updateSimulationTablesColumns(int[] s) {
 		Object[] header = makeHeaderArray(s);
-		for (SimulationPanel sims : simulations) {
+		for (SimulationPanel sims : simulationPanels) {
 			updateSimulationColumns(s, sims, header);
 
 		}
@@ -538,7 +537,8 @@ public class UserInterface extends JFrame implements ActionListener {
 	 */
 	private void updateSimulationTablesRows() {
 		int frames = frameSpinnerModel.getNumber().intValue();
-		for (SimulationPanel sims : simulations) {
+		for (SimulationPanel sims : simulationPanels) {
+
 			int rows = sims.getTable().getRowCount();
 			int tempRowCount = rows;
 
@@ -616,11 +616,14 @@ public class UserInterface extends JFrame implements ActionListener {
 		} else if (actionCommand.equals("properties")) {
 			propWin = new PropertiesWindow();
 		} else if (actionCommand.equals("run")) {
+
 			runSimulation();
 		} else if (actionCommand.equals("stop")) {
 			stopSimulation();
 
 		} else if (actionCommand.equals("step")) {
+
+			stepSimulation();
 
 		} else if (actionCommand.equals("generate")) {
 			/*
@@ -631,20 +634,75 @@ public class UserInterface extends JFrame implements ActionListener {
 			 * the JTextArea.
 			 */
 			int i = strLengthModel.getNumber().intValue();
-			randStrArea.setText(generateRandomPageReference(i,
+			randStrArea.setText(Util.generateRandomPageReference(i,
 					rangeSpinnerModel.getNumber().intValue()));
 		} else if (actionCommand.equals("pause")) {
+			play.setEnabled(true);
+			pause.setEnabled(false);
 			pauseSimulation();
 		}
 	}
 
+	private void stepSimulation() {
+		/*
+		 * If no string has been generated or entered we display an error
+		 * message prompting the user to enter a string of numbers. If a string
+		 * has been provided, we continue with the program execution.
+		 */
+		if (randStrArea.getText().equals("")) {
+			JOptionPane.showMessageDialog(f,
+					"Error! No string detected. Please\n"
+							+ "generate or supply a string of numbers\n"
+							+ "with a comma and space between each\n"
+							+ "number.", "String Error",
+					JOptionPane.ERROR_MESSAGE);
+		} else {
+			pause.setEnabled(false);
+			play.setEnabled(true);
+			if (simManager.isRunning()) {
+				System.out.println("simulator running + stepping");
+				simManager.step();
+			} else {
+
+				System.out.println("Creating simulation for step");
+				int[] s = refStringToArray();
+				if (!(s == null)) {
+					if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
+
+						updateSimulationTablesColumns(s);
+						updateSimulationTablesRows();
+
+						populateSimulationTable(s);
+
+						simManager.step();
+
+					} else {
+						JOptionPane.showMessageDialog(f,
+								"You must supply a string of\n"
+										+ "at least 7 numbers. Remember\n"
+										+ "to separate each number by a\n"
+										+ "comma and a space.", "String Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+					s = null;
+				}
+
+			}
+		}
+
+	}
+
 	private void pauseSimulation() {
+		play.setEnabled(true);
+		pause.setEnabled(false);
 		simManager.pause();
 
 	}
 
 	private void stopSimulation() {
-		// TODO
+		simManager.stop();
+		observer.cancel(true);
+		observer = null;
 
 	}
 
@@ -662,6 +720,8 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
+			pause.setEnabled(true);
+			play.setEnabled(false);
 			if (simManager.isRunning()) {
 				System.out.println("simulator running");
 				simManager.play();
@@ -669,15 +729,13 @@ public class UserInterface extends JFrame implements ActionListener {
 			}
 
 			int[] s = refStringToArray();
-			if (!(s == null)) {
-				if (!(s.length < 7)) {
+			if (!(s == null)) {// FIXME: its never null
+				if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
+
 					updateSimulationTablesColumns(s);
 					updateSimulationTablesRows();
 
-					for (SimulationPanel sim : simulations) {
-						populateSimulationTable(sim, s);
-					}
-
+					populateSimulationTable(s);
 					simManager.start();
 
 				} else {
@@ -699,13 +757,18 @@ public class UserInterface extends JFrame implements ActionListener {
 		 * Set all fields back to their default values
 		 */
 		randStrArea.setText("");
-		strLengthModel.setValue(Integer.valueOf(7));
+		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
 		frameSpinnerModel.setValue(Integer.valueOf(4));
 		rangeSpinnerModel.setValue(Integer.valueOf(0));
+		pause.setEnabled(false);
+		play.setEnabled(true);
+		step.setEnabled(true);
+
 		simManager.stop();
-		for (SimulationPanel sim : simulations) {
+		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
 		}
+
 	}
 
 	private Object[] makeHeaderArray(int[] s) {
@@ -716,5 +779,38 @@ public class UserInterface extends JFrame implements ActionListener {
 			header[i + 1] = s[i];
 		}
 		return header;
+	}
+
+	class SimulationObserver extends SwingWorker<Boolean, Void> {
+
+		@Override
+		protected Boolean doInBackground() throws Exception {
+			while (true) {
+				if (simManager != null) {
+					if (!simManager.isRunning()) {
+						return true;
+					}
+				}
+			}
+		}
+
+		@Override
+		protected void done() {
+			try {
+				get();
+			} catch (InterruptedException | ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			step.setEnabled(false);
+			play.setEnabled(false);
+			pause.setEnabled(false);
+
+			JOptionPane.showMessageDialog(f, "Simulation Finished",
+					"Simulation", JOptionPane.INFORMATION_MESSAGE);
+			return;
+
+		}
+
 	}
 }
