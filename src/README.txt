@@ -1,9 +1,5 @@
 *************************************************
-PAGE ALLOCATION SIMULATOR v1.00 README
-By:
-    Adam Childs - adchilds@eckerd.edu
-    Shawn Craine - spcraine@eckerd.edu
-    Dylan Meyer - meyerdw@eckerd.edu
+PAGE ALLOCATION SIMULATOR v2.00 README
 *************************************************
 
 The purpose of this application is to simulate different Operating System
