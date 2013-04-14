@@ -65,6 +65,7 @@ public class InsertionSimulation implements Simulation {
 	}
 
 	public synchronized boolean hasMoreSteps() {
+		System.out.println("InsertionSimulation.hasMoreSteps() " + numberOfSteps);
 		return numberOfSteps > 0;
 	}
 
@@ -98,6 +99,8 @@ public class InsertionSimulation implements Simulation {
 		frames = f;
 		columns = c;
 		numberOfSteps = (columns - 1) * frames;
+		i =1;
+		k = 0;
 	}
 
 	public synchronized void clearParams() {

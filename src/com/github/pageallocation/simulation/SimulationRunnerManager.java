@@ -1,7 +1,14 @@
 package com.github.pageallocation.simulation;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.github.pageallocation.gui.PropertiesWindow;
-import com.github.pageallocation.thread.PausableStopabbleThread;
+import com.github.pageallocation.simulation.event.SimulationStateEvent;
+import com.github.pageallocation.simulation.event.SimulationStateEvent.SimulationState;
+import com.github.pageallocation.simulation.event.SimulationStateListener;
+import com.github.pageallocation.simulation.event.SimulationStateObservable;
 
 /**
  * Manages the simulations execution
@@ -9,13 +16,16 @@ import com.github.pageallocation.thread.PausableStopabbleThread;
  * @author Victor J.
  * 
  */
-public class SimulationRunnerManager {
+public class SimulationRunnerManager implements SimulationStateObservable,
+		SimulationStateListener {
 
 	private final Simulation simulation;
 	private final SimulationRunner runner;
 	private boolean paused = false;
 	private boolean running = false;
-	private volatile PausableStopabbleThread observer;
+	// private volatile PausableStopabbleThread observer;
+	private Set<SimulationStateListener> listeners = Collections
+			.synchronizedSet(new HashSet<SimulationStateListener>(1));
 
 	public SimulationRunnerManager() {
 		this(null, null);
@@ -25,66 +35,63 @@ public class SimulationRunnerManager {
 			PropertiesWindow propWin) {
 		this.simulation = simulation;
 		this.runner = new SimulationRunner(simulation, propWin);
+		this.runner.addListener(this);
+		setRunning(true);
 	}
 
-	public synchronized void start() {
-		if (isRunning()) {
-			return;
+	private void startRunner() {
+		if (runner.getState() == Thread.State.NEW) {
+			runner.start();
 		}
-		runner.start();
-		observer = new SimulationsObserver();
-		observer.start();
-		setRunning(true);
-
 	}
 
 	public synchronized void play() {
+		System.out.println("SimulationRunnerManager.play()");
 		if (!isRunning() && !isPaused()) {
 			return;
 		}
+
+		startRunner();
 		setPaused(false);
 		runner.play();
-		observer.play();
-
+		publish(SimulationState.PLAY);
 	}
 
-	public synchronized void stop() {
+	public synchronized void stopSim() {
+		System.out.println("SimulationRunnerManager.stopSim()");
 		if (!isRunning()) {
 			return;
 		}
 		runner.requestStop();
-		observer.requestStop();
 		setRunning(false);
 		setPaused(false);
+		publish(SimulationState.STOP);
 
 	}
 
 	public synchronized void step() {
+		System.out.println("SimulationRunnerManager.step()");
 		if (isRunning()) {
 			pause();
+			startRunner();
+			if (simulation.hasMoreSteps()) {
+				simulation.step();
+				publish(SimulationState.STEP);
+			} else {
+				stopSim();
+			}
 		}
 
-		if (simulation.hasMoreSteps()) {
-			simulation.step();
-		} else {
-			setRunning(false);
-			clearThreads();
-		}
-
-	}
-
-	private void clearThreads() {
-		observer.requestStop();
-		observer = null;
-		runner.requestStop();
 	}
 
 	public synchronized void pause() {
+		System.out.println("SimulationRunnerManager.pause()");
 		if (!isRunning() || isPaused()) {
 			return;
 		}
 		runner.pause();
 		setPaused(true);
+		publish(SimulationState.PAUSE);
 
 	}
 
@@ -109,25 +116,62 @@ public class SimulationRunnerManager {
 		return runner;
 	}
 
-	/**
-	 * Specifies when the simulations have finished
-	 * 
-	 * @author Victor J.
-	 * 
-	 */
-	class SimulationsObserver extends PausableStopabbleThread {
-
-		@Override
-		public void run() {
-			while (!stopRequested() && !simulation.hasMoreSteps()) {
-
-				pausePoint();
+	private void publish(SimulationState s) {
+		SimulationStateEvent e = new SimulationStateEvent(simulation);
+		for (SimulationStateListener l : listeners) {
+			switch (s) {
+			case PLAY:
+				l.playEvent(e);
+				break;
+			case STOP:
+				l.stopEvent(e);
+				break;
+			case PAUSE:
+				l.pauseEvent(e);
+				break;
+			case STEP:
+				l.stepEvent(e);
+				break;
 			}
-
-			System.out.println("finished simulation");
-			setRunning(false);
-			clearThreads();
-
 		}
 	}
+
+	@Override
+	public void addListener(SimulationStateListener l) {
+		listeners.add(l);
+
+	}
+
+	@Override
+	public void removeListener(SimulationStateListener l) {
+		listeners.remove(l);
+
+	}
+
+	@Override
+	public void stepEvent(SimulationStateEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void playEvent(SimulationStateEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void pauseEvent(SimulationStateEvent e) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void stopEvent(SimulationStateEvent e) {
+		System.out.println("SimulationRunnerManager.stopEvent()");
+		if(isRunning()){
+		stopSim();
+		}
+	}
+
 }

@@ -10,12 +10,12 @@ public class CompositeSimulation implements Simulation {
 	private final List<Simulation> simulations;
 
 	public CompositeSimulation(List<Simulation> simulations) {
-		this.simulations = Collections.synchronizedList(new ArrayList<>(
-				simulations));
+		this.simulations = new ArrayList<>(simulations);
 	}
 
 	@Override
 	public synchronized boolean hasMoreSteps() {
+		System.out.println("CompositeSimulation.hasMoreSteps() " + simulations.size());
 		return !simulations.isEmpty();
 	}
 
