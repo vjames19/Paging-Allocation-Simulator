@@ -73,7 +73,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	private StateManager state;
 
 	// Program Variables
-	private String version = "1.00"; // v1.00 (release date)
+	private String version = "2.00"; // v1.00 (release date)
 
 	public UserInterface() {
 		createSimulationPanels();
@@ -171,7 +171,6 @@ public class UserInterface extends JFrame implements ActionListener {
 		play.addActionListener(this);
 		south.add(play);
 
-		// TODO: Add stopping functionality
 		pause = new JButton();
 		pause.setPreferredSize(new Dimension(85, 25));
 		pause.setIcon(Resources.PAUSE.getIcon());
@@ -182,8 +181,6 @@ public class UserInterface extends JFrame implements ActionListener {
 		pause.setEnabled(false);
 		south.add(pause);
 
-		// TODO: Add stepping functionality
-		// TODO: change to pause icon
 		step = new JButton();
 		step.setPreferredSize(new Dimension(85, 25));
 		step.setIcon(Resources.STEP.getIcon());
@@ -284,7 +281,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	private JMenuBar menuBar() {
 		JMenuBar mb = new JMenuBar();
 		JMenu fileMenu, helpMenu;
-		JMenuItem run, stop, reset, properties, exit, help, about;
+		JMenuItem run, step, reset, properties, exit, help, about;
 
 		// JMenu's
 		fileMenu = new JMenu("File");
@@ -296,9 +293,9 @@ public class UserInterface extends JFrame implements ActionListener {
 		// JMenuItem's
 		run = new JMenuItem("Run");
 		run.setIcon(Resources.PLAY.getIcon());
-		stop = new JMenuItem("Stop");
-		stop.setEnabled(true);
-		stop.setIcon(Resources.STOP.getIcon());
+		step = new JMenuItem("Step");
+		step.setEnabled(true);
+		step.setIcon(Resources.STEP.getIcon());
 		reset = new JMenuItem("Reset");
 		reset.setIcon(Resources.RESET.getIcon());
 		properties = new JMenuItem("Properties");
@@ -311,7 +308,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 		// Add JMenuItem's to the JMenu's
 		fileMenu.add(run);
-		fileMenu.add(stop);
+		fileMenu.add(step);
 		fileMenu.add(reset);
 		fileMenu.addSeparator();
 		fileMenu.add(properties);
@@ -323,14 +320,16 @@ public class UserInterface extends JFrame implements ActionListener {
 		// Accelerator
 		run.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R,
 				ActionEvent.CTRL_MASK));
-		stop.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+		step.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
+				ActionEvent.CTRL_MASK));
+		reset.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
 				ActionEvent.CTRL_MASK));
 
 		// Action Listening
 		run.setActionCommand("run");
 		run.addActionListener(this);
-		stop.setActionCommand("stop");
-		stop.addActionListener(this);
+		step.setActionCommand("step");
+		step.addActionListener(this);
 		reset.setActionCommand("reset");
 		reset.addActionListener(this);
 		properties.setActionCommand("properties");
@@ -660,7 +659,8 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
-			System.out.println("UserInterface.stepSimulation() " + state.running);
+			System.out.println("UserInterface.stepSimulation() "
+					+ state.running);
 			if (state.running) {
 				System.out.println("simulator running + stepping");
 				simManager.step();
@@ -721,7 +721,8 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
-			System.out.println("UserInterface.runSimulation() " + state.running);
+			System.out
+					.println("UserInterface.runSimulation() " + state.running);
 			if (state.running) {
 				System.out.println("simulator running");
 				simManager.play();
@@ -756,11 +757,13 @@ public class UserInterface extends JFrame implements ActionListener {
 		/*
 		 * Set all fields back to their default values
 		 */
-		randStrArea.setText("");
+		//randStrArea.setText("");
 		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
 		frameSpinnerModel.setValue(Integer.valueOf(4));
 		rangeSpinnerModel.setValue(Integer.valueOf(0));
+		if(simManager != null){
 		simManager.stopSim();
+		}
 		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
 		}
