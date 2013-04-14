@@ -27,17 +27,23 @@ may toggle the button to select how many randomly generated numbers they would l
 string. On the other hand, the user may enter a string of their choice, thereby testing their
 own string of numbers.
 
-After generating or creating your own string, the user may press the 'Run' button which then
-simulates the paging allocation methods (FIFO, LRU, SC) on the specified string. Alternatively,
-the user may stop execution by pressing the 'Stop' button.
+After generating or creating your own string, the user may use the control buttons namely:
+    Button:      Shortcut:
+    *Run         CTRL+R
+    *Pause         
+    *Step        CTRL+S
+    *Reset       CTRL+Z
 
-After pressing the 'Stop' button, the user may control the execution by stepping through each
-process by pressing the 'Step' button.
+To control the simulation's execution.
 
+The simulation consists of a table and its respective allocation algorithm. Each column represents 
+state of the frames at the time the reference its made.
+
+A page fault its represented by coloring a column in which the page fault happened. 
+
+A cell containing an 'X' is equal to a frame that has not been allocated.
+ 
 To the right of each table the user may view how many page faults have occurred and the page
 fault rate for each allocation method for the given input (string of numbers, frame count,
 range of numbers in the string).
 
-If the user would like to start over, they may click the reset button, which removes all values
-anywhere on the screen, and resets the string size to 7, page frame number to 4, and the range
-of randomly generated values to 0.
