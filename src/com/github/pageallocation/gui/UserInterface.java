@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -35,7 +34,6 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
@@ -49,7 +47,10 @@ import com.github.pageallocation.simulation.CompositeSimulation;
 import com.github.pageallocation.simulation.InsertionSimulation;
 import com.github.pageallocation.simulation.Simulation;
 import com.github.pageallocation.simulation.SimulationRunnerManager;
+import com.github.pageallocation.simulation.event.SimulationStateEvent;
+import com.github.pageallocation.simulation.event.SimulationStateListener;
 import com.github.pageallocation.util.Util;
+
 //TODO: Send event from simulation manager; Observe the simulation manager state; manage buttons state
 /*
  * This class holds the foundation of the program's Graphical
@@ -67,8 +68,9 @@ public class UserInterface extends JFrame implements ActionListener {
 			rangeSpinnerModel;
 	private PropertiesWindow propWin;
 	private List<SimulationPanel> simulationPanels = new ArrayList<>(3);
-	private SimulationRunnerManager simManager = new SimulationRunnerManager();
+	private SimulationRunnerManager simManager;
 	private JButton play, pause, step;
+	private StateManager state;
 
 	// Program Variables
 	private String version = "1.00"; // v1.00 (release date)
@@ -96,7 +98,10 @@ public class UserInterface extends JFrame implements ActionListener {
 															// processes when
 															// the program is
 															// closed
+
+		state = new StateManager();
 		f.setVisible(true); // JFrame must be visible to see it
+
 	}
 
 	private void createSimulationPanels() {
@@ -440,7 +445,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			return;
 
 		if (simManager != null) {
-			simManager.stop();
+			simManager.stopSim();
 		}
 		List<Simulation> simulations = new ArrayList<>(
 				this.simulationPanels.size());
@@ -468,6 +473,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 		simManager = new SimulationRunnerManager(new CompositeSimulation(
 				simulations), propWin);
+		simManager.addListener(state);
 
 	}
 
@@ -636,8 +642,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			randStrArea.setText(Util.generateRandomPageReference(i,
 					rangeSpinnerModel.getNumber().intValue()));
 		} else if (actionCommand.equals("pause")) {
-			play.setEnabled(true);
-			pause.setEnabled(false);
 			pauseSimulation();
 		}
 	}
@@ -656,9 +660,8 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
-			pause.setEnabled(false);
-			play.setEnabled(true);
-			if (simManager.isRunning()) {
+			System.out.println("UserInterface.stepSimulation() " + state.running);
+			if (state.running) {
 				System.out.println("simulator running + stepping");
 				simManager.step();
 			} else {
@@ -692,16 +695,16 @@ public class UserInterface extends JFrame implements ActionListener {
 	}
 
 	private void pauseSimulation() {
-		play.setEnabled(true);
-		pause.setEnabled(false);
+		// play.setEnabled(true);
+		// pause.setEnabled(false);
+		System.out.println("UserInterface.pauseSimulation()");
 		simManager.pause();
 
 	}
 
 	private void stopSimulation() {
-		simManager.stop();
-
-
+		System.out.println("UserInterface.stopSimulation() " + state.running);
+		simManager.stopSim();
 	}
 
 	private void runSimulation() {
@@ -718,9 +721,8 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
-			pause.setEnabled(true);
-			play.setEnabled(false);
-			if (simManager.isRunning()) {
+			System.out.println("UserInterface.runSimulation() " + state.running);
+			if (state.running) {
 				System.out.println("simulator running");
 				simManager.play();
 				return;
@@ -734,7 +736,7 @@ public class UserInterface extends JFrame implements ActionListener {
 					updateSimulationTablesRows();
 
 					populateSimulationTable(s);
-					simManager.start();
+					simManager.play();
 
 				} else {
 					JOptionPane.showMessageDialog(f,
@@ -758,14 +760,12 @@ public class UserInterface extends JFrame implements ActionListener {
 		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
 		frameSpinnerModel.setValue(Integer.valueOf(4));
 		rangeSpinnerModel.setValue(Integer.valueOf(0));
-		pause.setEnabled(false);
-		play.setEnabled(true);
-		step.setEnabled(true);
-
-		simManager.stop();
+		simManager.stopSim();
 		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
 		}
+
+		state.initState();
 
 	}
 
@@ -779,36 +779,98 @@ public class UserInterface extends JFrame implements ActionListener {
 		return header;
 	}
 
-	class SimulationObserver extends SwingWorker<Boolean, Void> {
+	// class SimulationObserver extends SwingWorker<Boolean, Void> {
+	//
+	// @Override
+	// protected Boolean doInBackground() throws Exception {
+	// while (true) {
+	// if (simManager != null) {
+	// if (!simManager.isRunning()) {
+	// return true;
+	// }
+	// }
+	// }
+	// }
+	//
+	// @Override
+	// protected void done() {
+	// try {
+	// get();
+	// } catch (InterruptedException | ExecutionException e) {
+	// // TODO Auto-generated catch block
+	// e.printStackTrace();
+	// }
+	// step.setEnabled(false);
+	// play.setEnabled(false);
+	// pause.setEnabled(false);
+	//
+	// JOptionPane.showMessageDialog(f, "Simulation Finished",
+	// "Simulation", JOptionPane.INFORMATION_MESSAGE);
+	// return;
+	//
+	// }
+	//
+	// }
 
-		@Override
-		protected Boolean doInBackground() throws Exception {
-			while (true) {
-				if (simManager != null) {
-					if (!simManager.isRunning()) {
-						return true;
-					}
-				}
-			}
+	class StateManager implements SimulationStateListener {
+
+		private boolean running;
+
+		public StateManager() {
+			initState();
+		}
+
+		void initState() {
+			play.setEnabled(true);
+			pause.setEnabled(false);
+			step.setEnabled(true);
+			running = false;
+
 		}
 
 		@Override
-		protected void done() {
-			try {
-				get();
-			} catch (InterruptedException | ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			step.setEnabled(false);
+		public void stepEvent(SimulationStateEvent e) {
+			System.out.println("UserInterface.StateManager.stepEvent()");
+			play.setEnabled(true);
+			pause.setEnabled(false);
+			// step.setEnabled(true);
+			running = true;
+
+		}
+
+		@Override
+		public void playEvent(SimulationStateEvent e) {
+			System.out.println("UserInterface.StateManager.playEvent()");
+			play.setEnabled(false);
+			pause.setEnabled(true);
+			// step.setEnabled(true);
+			running = true;
+
+		}
+
+		@Override
+		public void pauseEvent(SimulationStateEvent e) {
+			System.out.println("UserInterface.StateManager.pauseEvent()");
+
+			play.setEnabled(true);
+			pause.setEnabled(false);
+			// step.setEnabled(true);
+
+		}
+
+		@Override
+		public void stopEvent(SimulationStateEvent e) {
+			System.out.println("UserInterface.StateManager.stopEvent()");
+
 			play.setEnabled(false);
 			pause.setEnabled(false);
+			step.setEnabled(false);
 
+			running = false;
+			simManager.stopSim();
 			JOptionPane.showMessageDialog(f, "Simulation Finished",
 					"Simulation", JOptionPane.INFORMATION_MESSAGE);
-			return;
 
 		}
-
 	}
 }
