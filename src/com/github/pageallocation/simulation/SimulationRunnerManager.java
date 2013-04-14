@@ -73,7 +73,6 @@ public class SimulationRunnerManager implements SimulationStateObservable,
 		System.out.println("SimulationRunnerManager.step()");
 		if (isRunning()) {
 			pause();
-			startRunner();
 			if (simulation.hasMoreSteps()) {
 				simulation.step();
 				publish(SimulationState.STEP);
