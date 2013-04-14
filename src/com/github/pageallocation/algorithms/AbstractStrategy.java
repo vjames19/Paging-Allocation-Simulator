@@ -16,7 +16,7 @@ public abstract class AbstractStrategy implements AllocationStrategy {
 
 	@Override
 	public double faultRate() {
-		return ((pageFault * 1.0) / frames) * 100;
+		return ((pageFault * 1.0) / references.length) * 100;
 	}
 
 	@Override
