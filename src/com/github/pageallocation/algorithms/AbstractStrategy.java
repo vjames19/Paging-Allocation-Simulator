@@ -36,4 +36,12 @@ public abstract class AbstractStrategy implements AllocationStrategy {
 	public int[][] call() throws Exception {
 		return allocation();
 	}
+
+	protected void initializeToNotAllocated(int[][] allocation) {
+		for (int l = 0; l <= references.length; l++) {
+			for (int m = 0; m < frames; m++) {
+				allocation[l][m] = -1;
+			}
+		}
+	}
 }
