@@ -428,7 +428,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	 */
 	private int[] refStringToArray() {
 		String s = randStrArea.getText();
-		String[] s2 = s.split(",\\s+", s.length());
+		String[] s2 = s.split(",\\s*", s.length());
 		int[] i = new int[s2.length];
 
 		for (int m = 0; m < s2.length; m++) {
@@ -511,28 +511,9 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void updateSimulationColumns(int[] s, SimulationPanel sims,
 			Object[] headers) {
 
-		int columns = sims.getTable().getColumnCount() - 1;
-		int tempLength = s.length;
-		int header = columns;
-
-		if (tempLength > columns) {
-			int i = 1;
-			while (tempLength > columns) {
-				addColumn(sims.getTable(), header + i, null);
-				tempLength--;
-				i++;
-			}
-		} else if (tempLength < columns) {
-			while (tempLength < columns) {
-				removeColumnAndData(sims.getTable(), columns);
-				columns--;
-			}
-		}
+		sims.getModel().setRowCount(s.length + 1);
 		sims.getModel().setColumnIdentifiers(headers);
-		// for (int i = 1; i <= s.length; i++) {
-		// updateColumnName(sims.table, i, Integer.toString(s[i - 1]));
-		//
-		// }
+		sims.getModel().fireTableStructureChanged();
 	}
 
 	/*
@@ -542,26 +523,15 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void updateSimulationTablesRows() {
 		int frames = frameSpinnerModel.getNumber().intValue();
 		for (SimulationPanel sims : simulationPanels) {
+			DefaultTableModel model = sims.getModel();
+			model.setRowCount(0);
 
-			int rows = sims.getTable().getRowCount();
-			int tempRowCount = rows;
-
-			if (frames > rows) {
-				while (frames > rows) {
-					sims.getModel().addRow(new Object[] { tempRowCount });
-					frames--;
-					tempRowCount++;
-				}
-			} else if (frames < rows) {
-				while (frames < rows) {
-					sims.getModel().removeRow(rows - 1);
-					rows--;
-				}
-			} else {
-				// No changes need to be made to the JTable
+			for (int i = 0; i < frames; i++) {
+				model.addRow(new Object[] { i });
 			}
-
 		}
+		
+		
 	}
 
 	public void removeColumnAndData(JTable t, int cIndex) {
@@ -671,8 +641,7 @@ public class UserInterface extends JFrame implements ActionListener {
 				if (!(s == null)) {
 					if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
 
-						updateSimulationTablesColumns(s);
-						updateSimulationTablesRows();
+						updateSimulationTables(s);
 
 						populateSimulationTable(s);
 
@@ -732,9 +701,8 @@ public class UserInterface extends JFrame implements ActionListener {
 			int[] s = refStringToArray();
 			if (!(s == null)) {// FIXME: its never null
 				if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
-
-					updateSimulationTablesColumns(s);
-					updateSimulationTablesRows();
+					updateSimulationTables(s);
+					
 
 					populateSimulationTable(s);
 					simManager.play();
@@ -753,16 +721,22 @@ public class UserInterface extends JFrame implements ActionListener {
 		}
 	}
 
+	private void updateSimulationTables(int[] s) {
+		updateSimulationTablesColumns(s);
+		updateSimulationTablesRows();
+		
+	}
+
 	private void resetGui() {
 		/*
 		 * Set all fields back to their default values
 		 */
-		//randStrArea.setText("");
-		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
-		frameSpinnerModel.setValue(Integer.valueOf(4));
-		rangeSpinnerModel.setValue(Integer.valueOf(0));
-		if(simManager != null){
-		simManager.stopSim();
+		// randStrArea.setText("");
+//		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
+//		frameSpinnerModel.setValue(Integer.valueOf(4));
+//		rangeSpinnerModel.setValue(Integer.valueOf(0));
+		if (simManager != null) {
+			simManager.stopSim();
 		}
 		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
