@@ -66,7 +66,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	private JTextArea randStrArea;
 	private SpinnerNumberModel strLengthModel, frameSpinnerModel,
 			rangeSpinnerModel;
-	private PropertiesWindow propWin;
+	private PropertiesWindow propWin = new PropertiesWindow();
 	private List<SimulationPanel> simulationPanels = new ArrayList<>(3);
 	private SimulationRunnerManager simManager;
 	private JButton play, pause, step;
@@ -388,7 +388,8 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void addContent(JTextArea t, String f) {
 		String line;
 		try {
-			InputStream iStream = getClass().getResourceAsStream(f);
+			
+			InputStream iStream = getClass().getClassLoader().getResourceAsStream(f);
 			InputStreamReader isr = new InputStreamReader(iStream);
 			BufferedReader reader = new BufferedReader(isr);
 
@@ -588,7 +589,7 @@ public class UserInterface extends JFrame implements ActionListener {
 		else if (actionCommand.equals("reset")) {
 			resetGui();
 		} else if (actionCommand.equals("properties")) {
-			propWin = new PropertiesWindow();
+			propWin.setVisible(true);
 		} else if (actionCommand.equals("run")) {
 
 			runSimulation();

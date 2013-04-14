@@ -33,13 +33,14 @@ public class PropertiesWindow extends JDialog implements ActionListener {
 		c.add(northPanel(), BorderLayout.CENTER);
 		c.add(southPanel(), BorderLayout.SOUTH);
 
+		setVisible(false);
 		setIconImage(Resources.PROPERTIES.getIcon().getImage());
 		pack();
 		setLocation(setFrameCentered());
 		setResizable(false);
 		setModal(true);
 		setTitle("Properties");
-		setVisible(true);
+		
 	}
 
 	private JPanel northPanel() {
@@ -117,12 +118,7 @@ public class PropertiesWindow extends JDialog implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("save")) {
 			save();
-			dispose();
-			return;
 		}
-		if (e.getActionCommand().equals("cancel")) {
-			dispose();
-			return;
-		}
+		setVisible(false);
 	}
 }
