@@ -1,6 +1,5 @@
 package com.github.pageallocation.algorithms;
 
-import java.util.Collections;
 import java.util.LinkedList;
 
 import com.github.pageallocation.references.Frames;

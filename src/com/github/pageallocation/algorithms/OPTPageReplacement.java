@@ -1,7 +1,5 @@
 package com.github.pageallocation.algorithms;
 
-import java.util.LinkedList;
-
 import com.github.pageallocation.references.Frames;
 import com.github.pageallocation.references.Reference;
 

@@ -1,8 +1,6 @@
 package com.github.pageallocation.algorithms;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import com.github.pageallocation.references.Frames;
@@ -25,7 +23,6 @@ public abstract class AbstractPageReplacement implements PageReplacementStrategy
 			alloc[0][i] = -1;
 		}
 
-		int size = references.size();
 		for(int i= 1; i < alloc.length; i++){
 			Frames f = references.get(i-1).getFrames();
 			for(int j = 0; j < frames; j++){

@@ -10,7 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import com.github.pageallocation.algorithms.AllocationStrategy;
+import com.github.pageallocation.algorithms.PageReplacementStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.gui.table.PageFaultRenderer;
 import com.github.pageallocation.simulation.InsertionSimulation;
@@ -26,7 +26,7 @@ public class SimulationPanel extends JPanel {
 	String tooltipText;
 	JScrollPane sc;
 	JLabel label;
-	private AllocationStrategy strategy;
+	private PageReplacementStrategy strategy;
 	private InsertionSimulation simulation;
 	private JTextField faults;
 	private JTextField faultRate;
@@ -39,13 +39,13 @@ public class SimulationPanel extends JPanel {
 	private MyDefaultTableModel model;
 
 	public SimulationPanel(String algorithmName, String tooltipText,
-			AllocationStrategy strategy) {
+			PageReplacementStrategy strategy) {
 		init(algorithmName, tooltipText, strategy);
 
 	}
 
 	private void init(String algorithmName, String toolTipText,
-			AllocationStrategy strategy) {
+			PageReplacementStrategy strategy) {
 		this.algorithm = algorithmName;
 		this.setStrategy(strategy);
 
@@ -152,11 +152,11 @@ public class SimulationPanel extends JPanel {
 		this.simulation = simulation;
 	}
 
-	AllocationStrategy getStrategy() {
+	PageReplacementStrategy getStrategy() {
 		return strategy;
 	}
 
-	void setStrategy(AllocationStrategy strategy) {
+	void setStrategy(PageReplacementStrategy strategy) {
 		this.strategy = strategy;
 	}
 

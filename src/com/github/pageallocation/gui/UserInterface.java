@@ -37,10 +37,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
-import com.github.pageallocation.algorithms.AllocationStrategy;
-import com.github.pageallocation.algorithms.FIFOAllocation;
-import com.github.pageallocation.algorithms.LRUAllocation;
-import com.github.pageallocation.algorithms.SecondChanceAllocation;
+import com.github.pageallocation.algorithms.FIFOPageReplacement;
+import com.github.pageallocation.algorithms.LRUPageReplacement;
+import com.github.pageallocation.algorithms.OPTPageReplacement;
+import com.github.pageallocation.algorithms.PageReplacementStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.resources.Resources;
 import com.github.pageallocation.simulation.CompositeSimulation;
@@ -106,11 +106,11 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private void createSimulationPanels() {
 		simulationPanels.add(new SimulationPanel("FIFO", "First in First Out",
-				new FIFOAllocation()));
-		simulationPanels.add(new SimulationPanel("SC", "Second-chance",
-				new SecondChanceAllocation()));
+				new FIFOPageReplacement()));
+		simulationPanels.add(new SimulationPanel("OPT", "Optimal Algorithm",
+				new OPTPageReplacement()));
 		simulationPanels.add(new SimulationPanel("LRU", "Least Recently Used",
-				new LRUAllocation()));
+				new LRUPageReplacement()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
 		// FIFOAllocation()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
@@ -202,7 +202,7 @@ public class UserInterface extends JFrame implements ActionListener {
 		label = new JLabel("# of Frames");
 		west.add(label);
 
-		frameSpinnerModel = new SpinnerNumberModel(4, 4, 100, 1); // Initial,
+		frameSpinnerModel = new SpinnerNumberModel(3, 3, 100, 1); // Initial,
 																	// Min, Max,
 																	// Increment
 		spinner = new JSpinner(frameSpinnerModel);
@@ -449,7 +449,7 @@ public class UserInterface extends JFrame implements ActionListener {
 		}
 		List<Simulation> simulations = new ArrayList<>(
 				this.simulationPanels.size());
-		AllocationStrategy strategy = null;
+		PageReplacementStrategy strategy = null;
 		DecimalFormat fmt = new DecimalFormat("###.##");
 		int frames = frameSpinnerModel.getNumber().intValue();
 
