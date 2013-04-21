@@ -10,17 +10,17 @@ import javax.swing.table.TableModel;
 import com.github.pageallocation.util.Util;
 
 /**
- * Renderer used to depict a Page Fault. If the current reference was not in the previous
- * column then a Page Fault occurred.
+ * Renderer used to depict a Page Fault. If the current reference was not in the
+ * previous column then a Page Fault occurred.
+ * 
  * @author Victor J.
- *
+ * 
  */
 public class PageFaultRenderer extends DefaultTableCellRenderer {
 
 	@Override
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
-		// TODO Auto-generated method stub
 		Component renderer = super.getTableCellRendererComponent(table, value,
 				isSelected, hasFocus, row, column);
 		boolean pageFault = pageFaultOccurred(table.getModel(), column);
@@ -35,10 +35,10 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 	private boolean pageFaultOccurred(final TableModel model, final int column) {
 		String columnName = model.getColumnName(column);
 
-		if (column == 0) {//Frames column
+		if (column == 0) {// Frames column
 			return false;
 		}
-		if (column == 1) {//First reference and its not in the initial state
+		if (column == 1) {// First reference and its not in the initial state
 			return !Util.isInteger(columnName);
 
 		} else if (column > 1) {
@@ -52,17 +52,15 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 				return false;
 			}
 			int searchColumn = column - 1;
-			for (int i = 0; i < rows; i++) {//Search the value
+			for (int i = 0; i < rows; i++) {// Search the value
 				Object value = model.getValueAt(i, searchColumn);
 				if (value == null) {
 					continue;
 				} else {
 					String v = (String) value;
-					if (columnName.equals(v)) {//found it, no page fault
+					if (columnName.equals(v)) {// found it, no page fault
 						return false;
-
 					}
-
 				}
 			}
 		}
@@ -71,6 +69,13 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 
 	}
 
+	/**
+	 * Verifies if a column is empty. Either all columns are "" or null.
+	 * @param model
+	 * @param column
+	 * @param rows
+	 * @return
+	 */
 	private boolean isColumnEmpty(TableModel model, int column, int rows) {
 		for (int i = 0; i < rows; i++) {
 			Object val = model.getValueAt(i, column);

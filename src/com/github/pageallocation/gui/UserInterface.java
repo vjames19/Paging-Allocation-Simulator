@@ -445,7 +445,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			return;
 
 		if (simManager != null) {
-			simManager.stopSim();
+			simManager.stopSimulation();
 		}
 		List<Simulation> simulations = new ArrayList<>(
 				this.simulationPanels.size());
@@ -674,7 +674,7 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private void stopSimulation() {
 		System.out.println("UserInterface.stopSimulation() " + state.running);
-		simManager.stopSim();
+		simManager.stopSimulation();
 	}
 
 	private void runSimulation() {
@@ -737,7 +737,7 @@ public class UserInterface extends JFrame implements ActionListener {
 //		frameSpinnerModel.setValue(Integer.valueOf(4));
 //		rangeSpinnerModel.setValue(Integer.valueOf(0));
 		if (simManager != null) {
-			simManager.stopSim();
+			simManager.stopSimulation();
 		}
 		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
@@ -845,7 +845,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			step.setEnabled(false);
 
 			running = false;
-			simManager.stopSim();
+			simManager.stopSimulation();
 			JOptionPane.showMessageDialog(f, "Simulation Finished",
 					"Simulation", JOptionPane.INFORMATION_MESSAGE);
 

@@ -2,8 +2,8 @@ package com.github.pageallocation.algorithms;
 
 import java.util.LinkedList;
 
-import com.github.pageallocation.references.Frames;
-import com.github.pageallocation.references.Reference;
+import com.github.pageallocation.algorithms.model.Frames;
+import com.github.pageallocation.algorithms.model.Reference;
 
 public class LRUPageReplacement extends AbstractPageReplacement {
 

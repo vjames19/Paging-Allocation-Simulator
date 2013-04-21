@@ -1,7 +1,7 @@
 package com.github.pageallocation.algorithms;
 
-import com.github.pageallocation.references.Frames;
-import com.github.pageallocation.references.Reference;
+import com.github.pageallocation.algorithms.model.Frames;
+import com.github.pageallocation.algorithms.model.Reference;
 
 public class OPTPageReplacement extends AbstractPageReplacement {
 
@@ -13,18 +13,15 @@ public class OPTPageReplacement extends AbstractPageReplacement {
 			int ref = r.getReference();
 			Frames f = r.getFrames();
 			f.copyAll(past);
-			System.out.println("FIFOAlloc.allocate( )" + ref + " " + f.contains(ref));
 			if(!f.contains(ref)){
 				faults++;
 				if(f.thereIsAnEmptyFrame()){
-					System.out.println("empty");
 					f.set(f.getEmptyFrame(), ref);
 				}else{
 					int victim = getLastReferenced(f);	
 					f.swap(victim, ref);
 				}
-			}
-			
+			}			
 			past.copyAll(f);
 			refs.remove(0);
 			

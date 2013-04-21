@@ -1,8 +1,13 @@
-package com.github.pageallocation.references;
+package com.github.pageallocation.algorithms.model;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Representation of frames and an interface to interact with them. 
+ * @author Victor J.
+ *
+ */
 public class Frames {
 
 	private List<Integer> frames;
