@@ -16,8 +16,7 @@ import com.github.pageallocation.simulation.event.SimulationStateObservable;
  * @author Victor J.
  * 
  */
-public class SimulationRunnerManager implements SimulationStateObservable,
-		SimulationStateListener {
+public class SimulationRunnerManager implements SimulationStateObservable {
 
 	private final Simulation simulation;
 	private final SimulationRunner runner;
@@ -34,10 +33,13 @@ public class SimulationRunnerManager implements SimulationStateObservable,
 			PropertiesWindow propWin) {
 		this.simulation = new SynchronizedSimulation(simulation);
 		this.runner = new SimulationRunner(simulation, propWin);
-		this.runner.addListener(this);
+		this.runner.addListener(new FinishedSimulationListener());
 		setRunning(true);
 	}
 
+	/**
+	 * Starts the simulation runner if it has not been started yet
+	 */
 	private void startRunner() {
 		if (runner.getState() == Thread.State.NEW) {
 			runner.start();
@@ -146,30 +148,35 @@ public class SimulationRunnerManager implements SimulationStateObservable,
 
 	}
 
-	@Override
-	public void stepEvent(SimulationStateEvent e) {
-		// TODO Auto-generated method stub
+	private class FinishedSimulationListener implements SimulationStateListener {
 
-	}
+		@Override
+		public void stepEvent(SimulationStateEvent e) {
+			// TODO Auto-generated method stub
 
-	@Override
-	public void playEvent(SimulationStateEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void pauseEvent(SimulationStateEvent e) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void stopEvent(SimulationStateEvent e) {
-		System.out.println("SimulationRunnerManager.stopEvent()");
-		if(isRunning()){
-		stopSim();
 		}
+
+		@Override
+		public void playEvent(SimulationStateEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void pauseEvent(SimulationStateEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void stopEvent(SimulationStateEvent e) {
+			System.out
+					.println("SimulationRunnerManager.FinishedSimulationListener.stopEvent()");
+			if (isRunning()) {
+				stopSim();
+			}
+		}
+
 	}
 
 }
