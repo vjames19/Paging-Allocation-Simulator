@@ -23,7 +23,6 @@ public class SimulationRunnerManager implements SimulationStateObservable,
 	private final SimulationRunner runner;
 	private boolean paused = false;
 	private boolean running = false;
-	// private volatile PausableStopabbleThread observer;
 	private Set<SimulationStateListener> listeners = Collections
 			.synchronizedSet(new HashSet<SimulationStateListener>(1));
 
@@ -33,7 +32,7 @@ public class SimulationRunnerManager implements SimulationStateObservable,
 
 	public SimulationRunnerManager(Simulation simulation,
 			PropertiesWindow propWin) {
-		this.simulation = simulation;
+		this.simulation = new SynchronizedSimulation(simulation);
 		this.runner = new SimulationRunner(simulation, propWin);
 		this.runner.addListener(this);
 		setRunning(true);

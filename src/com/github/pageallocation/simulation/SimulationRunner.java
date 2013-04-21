@@ -25,9 +25,6 @@ public class SimulationRunner extends PausableStopabbleThread implements Simulat
 	@Override
 	public void run() {
 
-//		pause();
-//		pausePoint();
-		System.out.println("SimulationRunner.run() after pause");
 		while (!stopRequested() && simulation.hasMoreSteps()) {
 
 			simulation.step();
@@ -40,14 +37,12 @@ public class SimulationRunner extends PausableStopabbleThread implements Simulat
 
 			} catch (InterruptedException ie) {
 				ie.printStackTrace();
-				System.out.println("Thread.sleep() throwing an exception.");
 			}
 
 			pausePoint();
 
 		}
-		
-		finished();
+		notifyFinished();
 
 	}
 
@@ -63,7 +58,7 @@ public class SimulationRunner extends PausableStopabbleThread implements Simulat
 		
 	}
 	
-	private void finished(){
+	private void notifyFinished(){
 		SimulationStateEvent e = new SimulationStateEvent(simulation);
 		for(SimulationStateListener l:listeners){
 			l.stopEvent(e);

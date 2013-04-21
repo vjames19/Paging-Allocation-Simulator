@@ -15,27 +15,6 @@ public class InsertionSimulation implements Simulation {
 	private long numberOfSteps;
 	private int i = 1, k = 0;
 
-	/**
-	 * When this thread is started, it inserts the specified data into the
-	 * specified JTable at the specified speed (in milliseconds).
-	 * 
-	 * @param t
-	 *            the JTable to insert the data into
-	 * @param m
-	 *            the DefaultTableModel that needs to display the changed data
-	 * @param p
-	 *            the PropertiesWindow where we get the user's specified delay
-	 *            from
-	 * @param r
-	 *            the 2d array where our data is stored
-	 * @param f
-	 *            the number of frames the user has selected
-	 * @param c
-	 *            the number of columns the user has selected
-	 * @param ms
-	 *            the delay (in ms)
-	 */
-
 	public InsertionSimulation(JTable t, DefaultTableModel m) {
 		this(t, m, null, 0, 0);
 	}
@@ -64,12 +43,11 @@ public class InsertionSimulation implements Simulation {
 		viewport.scrollRectToVisible(rect);
 	}
 
-	public synchronized boolean hasMoreSteps() {
-		System.out.println("InsertionSimulation.hasMoreSteps() " + numberOfSteps);
+	public boolean hasMoreSteps() {
 		return numberOfSteps > 0;
 	}
 
-	public synchronized void step() {
+	public void step() {
 		if (hasMoreSteps()) {
 
 			scrollToVisible(table, k, i);
@@ -78,8 +56,7 @@ public class InsertionSimulation implements Simulation {
 				table.getModel().setValueAt("X", k, i);
 			else
 				table.getModel().setValueAt("" + result[i][k], k, i);
-			// table.getModel().setValueAt(+ result[i][k], k, i); changed to
-			// string for the CellRenderer
+
 			if (k == frames - 1) {
 				k = 0;
 				i++;
@@ -88,22 +65,21 @@ public class InsertionSimulation implements Simulation {
 			}
 
 			numberOfSteps--;
-			System.out.printf("i %d k %d %s", i, k, table);
 			model.fireTableDataChanged();
 		}
 
 	}
 
-	public synchronized void setParams(int[][] r, int f, int c) {
+	public void setParams(int[][] r, int f, int c) {
 		result = r;
 		frames = f;
 		columns = c;
 		numberOfSteps = (columns - 1) * frames;
-		i =1;
+		i = 1;
 		k = 0;
 	}
 
-	public synchronized void clearParams() {
+	public void clearParams() {
 		setParams(null, 0, 0);
 	}
 
