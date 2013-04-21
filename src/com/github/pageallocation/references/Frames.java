@@ -46,10 +46,8 @@ public class Frames {
 	}
 	
 	public void copyAll(Frames f){
-		frames = new ArrayList<>(f.frames.size());
-		for(Integer i: f.frames){
-			frames.add(new Integer(i));
-		}
+		frames.clear();
+		frames = new ArrayList<>(f.frames);
 	}
 	
 	public int getEmptyFrame(){
