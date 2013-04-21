@@ -9,7 +9,7 @@ Aimed to be a teaching tool in which you can add a page allocation algorithm and
 
 
 
-PAGE ALLOCATION SIMULATOR v2.00 README
+## Simulator Readme
 ======================================
 
 The purpose of this application is to simulate different Operating System
@@ -29,8 +29,8 @@ positives and their negatives. In order to examine which method is best for cert
 this program compares results of different demand paging allocation methods.
 
 
-TO USE THIS APPLICATION:
-------------------------
+### TO USE THIS APPLICATION:
+
 Next to the 'Generate' button is a text field where the user may supply the total length of
 a string of randomly generated numbers. This string contains 7 - 99 numbers within it. The user
 may toggle the button to select how many randomly generated numbers they would like within the
@@ -38,13 +38,31 @@ string. On the other hand, the user may enter a string of their choice, thereby 
 own string of numbers. *The string entered must be separeted by commas*
 
 After generating or creating your own string, the user may use the control buttons namely:
-    Button:      Shortcut:
-    * Run         CTRL+R
-    * Pause         
-    * Step        CTRL+S
-    * Reset       CTRL+Z
 
-To control the simulation's execution.
+<table>
+<tr>
+<th>Button</th>
+<th>Shortcut</th>
+</tr>
+<tr>
+<td>Run</td>
+<td>CTRL+R</td>
+</tr>
+<tr>
+<td>Stop</td>
+<td>CTRL+S</td>
+</tr>
+<tr>
+<td>Pause</td>
+<td>NOne</td>
+</tr>
+<tr>
+<td>Reset</td>
+<td>CTRL+Z</td>
+</tr>
+</table>
+
+**To control the simulation's execution.**
 
 The simulation consists of a table and its respective allocation algorithm. Each column represents 
 state of the frames at the time the reference its made.
