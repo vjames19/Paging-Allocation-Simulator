@@ -11,7 +11,9 @@ import com.github.pageallocation.simulation.event.SimulationStateListener;
 import com.github.pageallocation.simulation.event.SimulationStateObservable;
 
 /**
- * Manages the simulations execution
+ * Manages the simulations execution. Its only useful for only one simulation.
+ * After construction you can manage a simulation. After the simulation finishes
+ * this manager controls will no longer be useful.
  * 
  * @author Victor J.
  * 
@@ -29,6 +31,12 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 		this(null, null);
 	}
 
+	/**
+	 * The simulation provided must no be used outside the simulation manager
+	 * . To keep the simulation synchronized.
+	 * @param simulation
+	 * @param propWin
+	 */
 	public SimulationRunnerManager(Simulation simulation,
 			PropertiesWindow propWin) {
 		this.simulation = new SynchronizedSimulation(simulation);
@@ -46,6 +54,9 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 		}
 	}
 
+	/**
+	 * If the simulation is paused, it plays the simulation.
+	 */
 	public synchronized void play() {
 		System.out.println("SimulationRunnerManager.play()");
 		if (!isRunning() && !isPaused()) {
@@ -58,7 +69,11 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 		publish(SimulationState.PLAY);
 	}
 
-	public synchronized void stopSim() {
+	/**
+	 * Stops this simulation and then this manager is no longer useful
+	 * to control the simulation.
+	 */
+	public synchronized void stopSimulation() {
 		System.out.println("SimulationRunnerManager.stopSim()");
 		if (!isRunning()) {
 			return;
@@ -70,6 +85,10 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 
 	}
 
+	/**
+	 * If the simulation is being played, it pauses the simulation.
+	 * Then it makes a step.
+	 */
 	public synchronized void step() {
 		System.out.println("SimulationRunnerManager.step()");
 		if (isRunning()) {
@@ -78,12 +97,15 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 				simulation.step();
 				publish(SimulationState.STEP);
 			} else {
-				stopSim();
+				stopSimulation();
 			}
 		}
 
 	}
 
+	/**
+	 * Pauses this simulation
+	 */
 	public synchronized void pause() {
 		System.out.println("SimulationRunnerManager.pause()");
 		if (!isRunning() || isPaused()) {
@@ -152,19 +174,17 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 
 		@Override
 		public void stepEvent(SimulationStateEvent e) {
-			// TODO Auto-generated method stub
 
 		}
 
 		@Override
 		public void playEvent(SimulationStateEvent e) {
-			// TODO Auto-generated method stub
+
 
 		}
 
 		@Override
 		public void pauseEvent(SimulationStateEvent e) {
-			// TODO Auto-generated method stub
 
 		}
 
@@ -173,7 +193,7 @@ public class SimulationRunnerManager implements SimulationStateObservable {
 			System.out
 					.println("SimulationRunnerManager.FinishedSimulationListener.stopEvent()");
 			if (isRunning()) {
-				stopSim();
+				stopSimulation();
 			}
 		}
 
