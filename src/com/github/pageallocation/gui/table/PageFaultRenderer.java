@@ -9,6 +9,12 @@ import javax.swing.table.TableModel;
 
 import com.github.pageallocation.util.Util;
 
+/**
+ * Renderer used to depict a Page Fault. If the current reference was not in the previous
+ * column then a Page Fault occurred.
+ * @author Victor J.
+ *
+ */
 public class PageFaultRenderer extends DefaultTableCellRenderer {
 
 	@Override
@@ -29,11 +35,11 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 	private boolean pageFaultOccurred(final TableModel model, final int column) {
 		String columnName = model.getColumnName(column);
 
-		if (column == 0) {
+		if (column == 0) {//Frames column
 			return false;
 		}
-		if (column == 1) {
-			return !columnName.equalsIgnoreCase("A");
+		if (column == 1) {//First reference and its not in the initial state
+			return !Util.isInteger(columnName);
 
 		} else if (column > 1) {
 
@@ -46,13 +52,13 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 				return false;
 			}
 			int searchColumn = column - 1;
-			for (int i = 0; i < rows; i++) {
+			for (int i = 0; i < rows; i++) {//Search the value
 				Object value = model.getValueAt(i, searchColumn);
 				if (value == null) {
 					continue;
 				} else {
 					String v = (String) value;
-					if (columnName.equals(v)) {
+					if (columnName.equals(v)) {//found it, no page fault
 						return false;
 
 					}
