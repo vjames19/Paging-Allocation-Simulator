@@ -7,18 +7,14 @@ public class PausableStopabbleThread extends Thread {
 	protected final synchronized void pausePoint() {
 		try {
 			while (pause) {
-
 				wait();
-
 			}
 		} catch (InterruptedException ignore) {
-			System.out.println(ignore);
 		}
 	}
 
 	public final synchronized void pause() {
 		pause = true;
-
 	}
 
 	public final synchronized void requestStop() {
@@ -30,7 +26,7 @@ public class PausableStopabbleThread extends Thread {
 		return stop;
 	}
 
-	public synchronized void play() {
+	public final synchronized void play() {
 		pause = false;
 		this.notifyAll();
 	}
