@@ -13,6 +13,11 @@ import com.github.pageallocation.util.Util;
  * Renderer used to depict a Page Fault. If the current reference was not in the
  * previous column then a Page Fault occurred.
  * 
+ * <p> For this render to not depict the columns as a page fault, the header
+ * of the table must be other than an integer. That way the renderer will not color 
+ * any column of the table.
+ * 
+ * <p> It will only color columns with the header being an integer. If a page fault occurs.
  * @author Victor J.
  * 
  */
@@ -41,16 +46,16 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 		if (column == 1) {// First reference and its not in the initial state
 			return Util.isInteger(columnName);
 
-		} else if (column > 1) {
-
-			if (!Util.isInteger(columnName)) {
-				return false;
-			}
+		} else if (column > 1 && Util.isInteger(columnName)) {
 
 			int rows = model.getRowCount();
 			if (isColumnEmpty(model, column, rows)) {
 				return false;
 			}
+			/*
+			 * Search the value in the past column. If the value is not in the past
+			 * column then a page fault occurred.
+			 */
 			int searchColumn = column - 1;
 			for (int i = 0; i < rows; i++) {// Search the value
 				Object value = model.getValueAt(i, searchColumn);
@@ -63,9 +68,11 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 					}
 				}
 			}
+			
+			return true;
 		}
 
-		return true;
+		return false;
 
 	}
 
@@ -85,7 +92,6 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 				}
 			}
 		}
-
 		return true;
 	}
 
