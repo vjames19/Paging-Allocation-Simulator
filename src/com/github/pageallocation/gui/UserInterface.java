@@ -68,7 +68,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	private JButton play, pause, step;
 	private final StateManager state;
 	private final Pattern REFERENCES_PATTERN = Pattern
-			.compile("(\\d+){1}(,\\s+\\d*)*");
+			.compile("(\\d+){1}(,\\s*\\d*)*");
 
 	// Program Variables
 	private String version = "2.00"; // v1.00 (release date)
