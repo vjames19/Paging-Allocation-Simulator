@@ -39,7 +39,7 @@ public class PageFaultRenderer extends DefaultTableCellRenderer {
 			return false;
 		}
 		if (column == 1) {// First reference and its not in the initial state
-			return !Util.isInteger(columnName);
+			return Util.isInteger(columnName);
 
 		} else if (column > 1) {
 
