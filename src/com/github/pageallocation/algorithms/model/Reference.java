@@ -4,11 +4,12 @@ public class Reference {
 
 	private int reference;
 	private Frames frames;
-	
-	public Reference(int reference, int numberOfFrames){
+
+	public Reference(int reference, int numberOfFrames) {
 		this(reference, new Frames(numberOfFrames));
 	}
-	public Reference(int reference, Frames frames){
+
+	private Reference(int reference, Frames frames) {
 		this.reference = reference;
 		this.frames = frames;
 	}
@@ -20,8 +21,5 @@ public class Reference {
 	public Frames getFrames() {
 		return frames;
 	}
-	
-	
-	
-	
+
 }
