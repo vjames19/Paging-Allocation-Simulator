@@ -9,8 +9,6 @@ import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.table.DefaultTableModel;
 
-import sun.org.mozilla.javascript.internal.ast.ArrayComprehensionLoop;
-
 import com.github.pageallocation.algorithms.model.Reference;
 
 public class PageAllocationSimulation implements Simulation {
