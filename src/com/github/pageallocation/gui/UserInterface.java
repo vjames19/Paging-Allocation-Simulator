@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -38,6 +39,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import com.github.pageallocation.algorithms.FIFOPageReplacement;
+import com.github.pageallocation.algorithms.LRUPageReplacement;
+import com.github.pageallocation.algorithms.OPTPageReplacement;
 import com.github.pageallocation.algorithms.PageReplacementStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.resources.Resources;
@@ -49,7 +52,6 @@ import com.github.pageallocation.simulation.event.SimulationStateEvent;
 import com.github.pageallocation.simulation.event.SimulationStateListener;
 import com.github.pageallocation.util.Util;
 
-//TODO: Send event from simulation manager; Observe the simulation manager state; manage buttons state
 /*
  * This class holds the foundation of the program's Graphical
  * User Interface. The GUI is set up and displayed from this class.
@@ -69,6 +71,8 @@ public class UserInterface extends JFrame implements ActionListener {
 	private SimulationRunnerManager simManager;
 	private JButton play, pause, step;
 	private final StateManager state;
+	private final Pattern REFERENCES_PATTERN = Pattern
+			.compile("(\\d+){1}(,\\s+\\d*)*");
 
 	// Program Variables
 	private String version = "2.00"; // v1.00 (release date)
@@ -105,19 +109,11 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void createSimulationPanels() {
 		simulationPanels.add(new SimulationPanel("FIFO", "First in First Out",
 				new FIFOPageReplacement()));
-//		simulationPanels.add(new SimulationPanel("OPT", "Optimal Algorithm",
-//				new OPTPageReplacement()));
-//		simulationPanels.add(new SimulationPanel("LRU", "Least Recently Used",
-//				new LRUPageReplacement()));
-		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
-		// FIFOAllocation()));
-		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
-		// FIFOAllocation()));
-		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
-		// FIFOAllocation()));
-		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
-		// FIFOAllocation()));
-
+		 simulationPanels.add(new SimulationPanel("OPT", "Optimal Algorithm",
+		 new OPTPageReplacement()));
+		 simulationPanels.add(new SimulationPanel("LRU",
+		 "Least Recently Used",
+		 new LRUPageReplacement()));
 	}
 
 	private JPanel northPanel() {
@@ -398,23 +394,6 @@ public class UserInterface extends JFrame implements ActionListener {
 		}
 	}
 
-	/*
-	 * Takes the string of numbers from the randStrArea and places the numbers
-	 * into an integer array. Converts from String to int.
-	 */
-	private int[] refStringToArray() {
-		String s = randStrArea.getText();
-		String[] s2 = s.split(",\\s*", s.length());
-		int[] i = new int[s2.length];
-
-		for (int m = 0; m < s2.length; m++) {
-			if (s.length() > 0)
-				i[m] = Integer.parseInt(s2[m]);
-		}
-
-		return i;
-	}
-
 	private void populateSimulationTable(int[] s) {
 		if (s == null)
 			return;
@@ -432,16 +411,13 @@ public class UserInterface extends JFrame implements ActionListener {
 
 			int columns = simulationPanel.getTable().getColumnCount();
 			strategy = simulationPanel.getStrategy();
-			strategy.clearStats();
 			strategy.setParams(s, frames);
-//			int[][] result = strategy.allocation();
-			int faults = strategy.faults();
-			
+
 			PageAllocationSimulation sim = simulationPanel.getSimulation();
 			sim.setParams(strategy.allocateReferences(), frames, columns);
 			simulations.add(sim);
-
-			simulationPanel.getFaults().setText(Integer.toString(faults));
+			
+			simulationPanel.getFaults().setText(Integer.toString(strategy.faults()));
 			simulationPanel.getFaultRate().setText(
 					fmt.format(strategy.faultRate()) + "%");
 		}
@@ -452,44 +428,24 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	}
 
-	/**
-	 * This method adds a new column to the specified JTable. Use this over the
-	 * default addColumn() method provided by Java's API.
-	 * 
-	 * @param t
-	 *            JTable to add the column to
-	 * @param h
-	 *            Header for the new column
-	 * @param v
-	 *            Values to be stored in the column
-	 */
-	public void addColumn(JTable t, Object h, Object[] v) {
-		DefaultTableModel m = (DefaultTableModel) t.getModel();
-		TableColumn c = new TableColumn(m.getColumnCount());
-
-		c.setHeaderValue(h);
-		t.addColumn(c);
-		m.addColumn(h.toString(), v);
-	}
-
 	/*
 	 * This method takes the randomly generated string and adds each number to a
 	 * the column header.
 	 */
 	private void updateSimulationTablesColumns(int[] s) {
-		Object[] header = makeHeaderArray(s);
+		Object[] header = Util.makeHeaderArray(s);
 		for (SimulationPanel sims : simulationPanels) {
 			updateSimulationColumns(s, sims, header);
 
 		}
 	}
 
-	private void updateSimulationColumns(int[] s, SimulationPanel sims,
+	private void updateSimulationColumns(int[] s, SimulationPanel simulationPanel,
 			Object[] headers) {
-
-		sims.getModel().setRowCount(s.length + 1);
-		sims.getModel().setColumnIdentifiers(headers);
-		sims.getModel().fireTableStructureChanged();
+		MyDefaultTableModel model = simulationPanel.getModel();
+		model.setRowCount(s.length + 1);
+		model.setColumnIdentifiers(headers);
+		model.fireTableStructureChanged();
 	}
 
 	/*
@@ -507,32 +463,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			}
 		}
 
-	}
-
-	public void removeColumnAndData(JTable t, int cIndex) {
-		MyDefaultTableModel m = (MyDefaultTableModel) t.getModel();
-		TableColumn c = t.getColumnModel().getColumn(cIndex);
-		int columnModelIndex = c.getModelIndex();
-		Vector<?> data = m.getDataVector();
-		Vector<?> cIds = m.getColumnIdentifiers();
-
-		t.removeColumn(c);
-		cIds.removeElementAt(columnModelIndex);
-
-		for (int r = 0; r < data.size(); r++) {
-			Vector<?> row = (Vector<?>) data.get(r);
-			row.removeElementAt(columnModelIndex);
-		}
-		m.setDataVector(data, cIds);
-
-		Enumeration<TableColumn> e = t.getColumnModel().getColumns();
-		while (e.hasMoreElements()) {
-			TableColumn tc = e.nextElement();
-
-			if (tc.getModelIndex() >= columnModelIndex)
-				tc.setModelIndex(tc.getModelIndex() - 1);
-		}
-		m.fireTableStructureChanged();
 	}
 
 	@Override
@@ -554,26 +484,23 @@ public class UserInterface extends JFrame implements ActionListener {
 		} else if (actionCommand.equals("about")) {
 			JOptionPane.showMessageDialog(f, "Version: " + version + "\n"
 					+ "Author: Victor J. Reventos" + "\n"
-					+ "Desing Based on:    \n" + "    Adam Childs\n"
+					+ "GUI Based on:    \n" + "    Adam Childs\n"
 					+ "    Shawn Craine\n" + "    Dylan Meyer\n", "About",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
-
 		// Buttons
 		else if (actionCommand.equals("reset")) {
 			resetGui();
 		} else if (actionCommand.equals("properties")) {
 			propWin.setVisible(true);
 		} else if (actionCommand.equals("run")) {
-
-			runSimulation();
+			runOrStepSimulation(false);
 		} else if (actionCommand.equals("stop")) {
 			stopSimulation();
-
 		} else if (actionCommand.equals("step")) {
-
-			stepSimulation();
-
+			runOrStepSimulation(true);
+		}else if (actionCommand.equals("pause")) {
+			pauseSimulation();
 		} else if (actionCommand.equals("generate")) {
 			/*
 			 * Here we grab the value in the JSpinner which signifies the amount
@@ -585,57 +512,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			int i = strLengthModel.getNumber().intValue();
 			randStrArea.setText(Util.generateRandomPageReference(i,
 					rangeSpinnerModel.getNumber().intValue()));
-		} else if (actionCommand.equals("pause")) {
-			pauseSimulation();
 		}
-	}
-
-	private void stepSimulation() {
-		/*
-		 * If no string has been generated or entered we display an error
-		 * message prompting the user to enter a string of numbers. If a string
-		 * has been provided, we continue with the program execution.
-		 */
-		if (randStrArea.getText().equals("")) {
-			JOptionPane.showMessageDialog(f,
-					"Error! No string detected. Please\n"
-							+ "generate or supply a string of numbers\n"
-							+ "with a comma and space between each\n"
-							+ "number.", "String Error",
-					JOptionPane.ERROR_MESSAGE);
-		} else {
-			System.out.println("UserInterface.stepSimulation() "
-					+ state.simManagerRunning);
-			if (state.simManagerRunning) {
-				System.out.println("simulator running + stepping");
-				simManager.step();
-			} else {
-
-				System.out.println("Creating simulation for step");
-				int[] s = refStringToArray();
-				if (!(s == null)) {
-					if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
-
-						updateSimulationTables(s);
-
-						populateSimulationTable(s);
-
-						simManager.step();
-
-					} else {
-						JOptionPane.showMessageDialog(f,
-								"You must supply a string of\n"
-										+ "at least 7 numbers. Remember\n"
-										+ "to separate each number by a\n"
-										+ "comma and a space.", "String Error",
-								JOptionPane.ERROR_MESSAGE);
-					}
-					s = null;
-				}
-
-			}
-		}
-
 	}
 
 	private void pauseSimulation() {
@@ -650,54 +527,51 @@ public class UserInterface extends JFrame implements ActionListener {
 		simManager.stopSimulation();
 	}
 
-	private void runSimulation() {
-		/*
-		 * If no string has been generated or entered we display an error
-		 * message prompting the user to enter a string of numbers. If a string
-		 * has been provided, we continue with the program execution.
-		 */
-		if (randStrArea.getText().equals("")) {
-			JOptionPane.showMessageDialog(f,
-					"Error! No string detected. Please\n"
-							+ "generate or supply a string of numbers\n"
-							+ "with a comma and space between each\n"
-							+ "number.", "String Error",
-					JOptionPane.ERROR_MESSAGE);
+	private void runOrStepSimulation(boolean step) {
+		String text = randStrArea.getText();
+		if (text.equals("") || !isValidInputReferencesFormat(text)) {
+			JOptionPane.showMessageDialog(f, "Error! Invalid format. Please\n"
+					+ "generate or supply a string of numbers\n"
+					+ "with a comma and space between each\n" + "number.",
+					"String Error", JOptionPane.ERROR_MESSAGE);
 		} else {
-			System.out.println("UserInterface.runSimulation() "
-					+ state.simManagerRunning);
 			if (state.simManagerRunning) {
-				System.out.println("simulator running");
-				simManager.play();
+				if (step) {
+					simManager.step();
+				} else {
+					simManager.play();
+				}
 				return;
 			}
-
-			int[] s = refStringToArray();
-			if (!(s == null)) {// FIXME: its never null
-				if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
-					updateSimulationTables(s);
-
-					populateSimulationTable(s);
-					simManager.play();
-
+			int[] s = Util.refStringToArray(text);
+			if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
+				updateSimulationTables(s);
+				populateSimulationTable(s);
+				if (step) {
+					simManager.step();
 				} else {
-					JOptionPane.showMessageDialog(f,
-							"You must supply a string of\n"
-									+ "at least 7 numbers. Remember\n"
-									+ "to separate each number by a\n"
-									+ "comma and a space.", "String Error",
-							JOptionPane.ERROR_MESSAGE);
+					simManager.play();
 				}
-				s = null;
-			}
 
+			} else {
+				JOptionPane.showMessageDialog(f,
+						"You must supply a string of\n"
+								+ "at least 7 numbers. Remember\n"
+								+ "to separate each number by a\n"
+								+ "comma and a space.", "String Error",
+						JOptionPane.ERROR_MESSAGE);
+			}
+			s = null;
 		}
+	}
+
+	private boolean isValidInputReferencesFormat(String text) {
+		return REFERENCES_PATTERN.matcher(text).matches();
 	}
 
 	private void updateSimulationTables(int[] s) {
 		updateSimulationTablesColumns(s);
 		updateSimulationTablesRows();
-
 	}
 
 	/**
@@ -715,15 +589,6 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	}
 
-	private Object[] makeHeaderArray(int[] s) {
-		int length = s.length + 1;
-		Object[] header = new Object[length];
-		header[0] = "Frames";
-		for (int i = 0; i < s.length; i++) {
-			header[i + 1] = s[i];
-		}
-		return header;
-	}
 
 	class StateManager implements SimulationStateListener {
 
@@ -746,7 +611,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			System.out.println("UserInterface.StateManager.stepEvent()");
 			play.setEnabled(true);
 			pause.setEnabled(false);
-			// step.setEnabled(true);
 			simManagerRunning = true;
 
 		}
@@ -756,7 +620,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			System.out.println("UserInterface.StateManager.playEvent()");
 			play.setEnabled(false);
 			pause.setEnabled(true);
-			// step.setEnabled(true);
 			simManagerRunning = true;
 
 		}

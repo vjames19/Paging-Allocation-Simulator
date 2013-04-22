@@ -46,6 +46,8 @@ public abstract class AbstractPageReplacement implements
 			refs.add(i);
 			this.references.add(new Reference(i, frames));
 		}
+		
+		faults = 0;
 
 	}
 
