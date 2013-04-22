@@ -6,6 +6,8 @@ Simulates Demand Paging done by an operating system.
 Aimed to be a teaching tool in which you can add a page allocation algorithm and simulate it.
 *Still needs to work on how to plug a new algorithm into the GUI*
 
+To compile this application you will need JDK 7
+
 
 
 
@@ -49,12 +51,12 @@ After generating or creating your own string, the user may use the control butto
 <td>CTRL+R</td>
 </tr>
 <tr>
-<td>Stop</td>
+<td>Step</td>
 <td>CTRL+S</td>
 </tr>
 <tr>
 <td>Pause</td>
-<td>NOne</td>
+<td>None</td>
 </tr>
 <tr>
 <td>Reset</td>
