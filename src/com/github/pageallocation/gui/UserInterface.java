@@ -38,13 +38,11 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 
 import com.github.pageallocation.algorithms.FIFOPageReplacement;
-import com.github.pageallocation.algorithms.LRUPageReplacement;
-import com.github.pageallocation.algorithms.OPTPageReplacement;
 import com.github.pageallocation.algorithms.PageReplacementStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.resources.Resources;
 import com.github.pageallocation.simulation.CompositeSimulation;
-import com.github.pageallocation.simulation.InsertionSimulation;
+import com.github.pageallocation.simulation.PageAllocationSimulation;
 import com.github.pageallocation.simulation.Simulation;
 import com.github.pageallocation.simulation.SimulationRunnerManager;
 import com.github.pageallocation.simulation.event.SimulationStateEvent;
@@ -70,7 +68,7 @@ public class UserInterface extends JFrame implements ActionListener {
 	private List<SimulationPanel> simulationPanels = new ArrayList<>(3);
 	private SimulationRunnerManager simManager;
 	private JButton play, pause, step;
-	private StateManager state;
+	private final StateManager state;
 
 	// Program Variables
 	private String version = "2.00"; // v1.00 (release date)
@@ -107,10 +105,10 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void createSimulationPanels() {
 		simulationPanels.add(new SimulationPanel("FIFO", "First in First Out",
 				new FIFOPageReplacement()));
-		simulationPanels.add(new SimulationPanel("OPT", "Optimal Algorithm",
-				new OPTPageReplacement()));
-		simulationPanels.add(new SimulationPanel("LRU", "Least Recently Used",
-				new LRUPageReplacement()));
+//		simulationPanels.add(new SimulationPanel("OPT", "Optimal Algorithm",
+//				new OPTPageReplacement()));
+//		simulationPanels.add(new SimulationPanel("LRU", "Least Recently Used",
+//				new LRUPageReplacement()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
 		// FIFOAllocation()));
 		// simulations.add(new SimulationPanel("FIFO", "First in First Out", new
@@ -124,19 +122,14 @@ public class UserInterface extends JFrame implements ActionListener {
 
 	private JPanel northPanel() {
 		JPanel p = new JPanel(new BorderLayout());
-
 		p.add(northWestPanel(), BorderLayout.WEST);
 		p.add(northEastPanel(), BorderLayout.EAST);
-
 		return p;
 	}
 
 	private JPanel northEastPanel() {
 		JPanel topLayer = new JPanel(new BorderLayout());
-		topLayer.setBorder(BorderFactory.createEmptyBorder(10, 15, 0, 15)); // top,
-																			// left,
-																			// bottom,
-																			// right
+		topLayer.setBorder(BorderFactory.createEmptyBorder(10, 15, 0, 15));
 		JPanel north = new JPanel();
 		JPanel south = new JPanel();
 		JPanel west = new JPanel();
@@ -373,7 +366,6 @@ public class UserInterface extends JFrame implements ActionListener {
 	 */
 	private String getOS() {
 		String s = System.getProperty("os.name").toLowerCase();
-
 		return s;
 	}
 
@@ -388,8 +380,9 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void addContent(JTextArea t, String f) {
 		String line;
 		try {
-			
-			InputStream iStream = getClass().getClassLoader().getResourceAsStream(f);
+
+			InputStream iStream = getClass().getClassLoader()
+					.getResourceAsStream(f);
 			InputStreamReader isr = new InputStreamReader(iStream);
 			BufferedReader reader = new BufferedReader(isr);
 
@@ -404,24 +397,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			System.out.println("Error: " + e.getMessage());
 		}
 	}
-
-	// /**
-	// * Changes the JTable column header values
-	// *
-	// * @param t
-	// * the JTable to modify
-	// * @param index
-	// * the column of the JTable 't' to modify
-	// * @param newName
-	// * the new value to set at 'index' of 't'
-	// */
-	// private void updateColumnName(JTable t, int index, String newName) {
-	// JTableHeader th = t.getTableHeader();
-	// TableColumnModel tcm = th.getColumnModel();
-	// TableColumn tc = tcm.getColumn(index);
-	// tc.setHeaderValue(newName);
-	// th.repaint();
-	// }
 
 	/*
 	 * Takes the string of numbers from the randStrArea and places the numbers
@@ -459,11 +434,11 @@ public class UserInterface extends JFrame implements ActionListener {
 			strategy = simulationPanel.getStrategy();
 			strategy.clearStats();
 			strategy.setParams(s, frames);
-			int[][] result = strategy.allocation();
+//			int[][] result = strategy.allocation();
 			int faults = strategy.faults();
-
-			InsertionSimulation sim = simulationPanel.getSimulation();
-			sim.setParams(result, frames, columns);
+			
+			PageAllocationSimulation sim = simulationPanel.getSimulation();
+			sim.setParams(strategy.allocateReferences(), frames, columns);
 			simulations.add(sim);
 
 			simulationPanel.getFaults().setText(Integer.toString(faults));
@@ -531,8 +506,7 @@ public class UserInterface extends JFrame implements ActionListener {
 				model.addRow(new Object[] { i });
 			}
 		}
-		
-		
+
 	}
 
 	public void removeColumnAndData(JTable t, int cIndex) {
@@ -631,8 +605,8 @@ public class UserInterface extends JFrame implements ActionListener {
 					JOptionPane.ERROR_MESSAGE);
 		} else {
 			System.out.println("UserInterface.stepSimulation() "
-					+ state.running);
-			if (state.running) {
+					+ state.simManagerRunning);
+			if (state.simManagerRunning) {
 				System.out.println("simulator running + stepping");
 				simManager.step();
 			} else {
@@ -665,15 +639,14 @@ public class UserInterface extends JFrame implements ActionListener {
 	}
 
 	private void pauseSimulation() {
-		// play.setEnabled(true);
-		// pause.setEnabled(false);
 		System.out.println("UserInterface.pauseSimulation()");
 		simManager.pause();
 
 	}
 
 	private void stopSimulation() {
-		System.out.println("UserInterface.stopSimulation() " + state.running);
+		System.out.println("UserInterface.stopSimulation() "
+				+ state.simManagerRunning);
 		simManager.stopSimulation();
 	}
 
@@ -691,9 +664,9 @@ public class UserInterface extends JFrame implements ActionListener {
 							+ "number.", "String Error",
 					JOptionPane.ERROR_MESSAGE);
 		} else {
-			System.out
-					.println("UserInterface.runSimulation() " + state.running);
-			if (state.running) {
+			System.out.println("UserInterface.runSimulation() "
+					+ state.simManagerRunning);
+			if (state.simManagerRunning) {
 				System.out.println("simulator running");
 				simManager.play();
 				return;
@@ -703,7 +676,6 @@ public class UserInterface extends JFrame implements ActionListener {
 			if (!(s == null)) {// FIXME: its never null
 				if (!(s.length < MINIMUM_REFERENCE_LENGTH)) {
 					updateSimulationTables(s);
-					
 
 					populateSimulationTable(s);
 					simManager.play();
@@ -725,24 +697,20 @@ public class UserInterface extends JFrame implements ActionListener {
 	private void updateSimulationTables(int[] s) {
 		updateSimulationTablesColumns(s);
 		updateSimulationTablesRows();
-		
+
 	}
 
+	/**
+	 * If there is a simulation stop it. Clear all the simulation panels and
+	 * make the initial state.
+	 */
 	private void resetGui() {
-		/*
-		 * Set all fields back to their default values
-		 */
-		// randStrArea.setText("");
-//		strLengthModel.setValue(Integer.valueOf(MINIMUM_REFERENCE_LENGTH));
-//		frameSpinnerModel.setValue(Integer.valueOf(4));
-//		rangeSpinnerModel.setValue(Integer.valueOf(0));
 		if (simManager != null) {
 			simManager.stopSimulation();
 		}
 		for (SimulationPanel sim : simulationPanels) {
 			sim.clear();
 		}
-
 		state.initState();
 
 	}
@@ -757,42 +725,9 @@ public class UserInterface extends JFrame implements ActionListener {
 		return header;
 	}
 
-	// class SimulationObserver extends SwingWorker<Boolean, Void> {
-	//
-	// @Override
-	// protected Boolean doInBackground() throws Exception {
-	// while (true) {
-	// if (simManager != null) {
-	// if (!simManager.isRunning()) {
-	// return true;
-	// }
-	// }
-	// }
-	// }
-	//
-	// @Override
-	// protected void done() {
-	// try {
-	// get();
-	// } catch (InterruptedException | ExecutionException e) {
-	// // TODO Auto-generated catch block
-	// e.printStackTrace();
-	// }
-	// step.setEnabled(false);
-	// play.setEnabled(false);
-	// pause.setEnabled(false);
-	//
-	// JOptionPane.showMessageDialog(f, "Simulation Finished",
-	// "Simulation", JOptionPane.INFORMATION_MESSAGE);
-	// return;
-	//
-	// }
-	//
-	// }
-
 	class StateManager implements SimulationStateListener {
 
-		private boolean running;
+		private boolean simManagerRunning;
 
 		public StateManager() {
 			initState();
@@ -802,7 +737,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			play.setEnabled(true);
 			pause.setEnabled(false);
 			step.setEnabled(true);
-			running = false;
+			simManagerRunning = false;
 
 		}
 
@@ -812,7 +747,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			play.setEnabled(true);
 			pause.setEnabled(false);
 			// step.setEnabled(true);
-			running = true;
+			simManagerRunning = true;
 
 		}
 
@@ -822,18 +757,15 @@ public class UserInterface extends JFrame implements ActionListener {
 			play.setEnabled(false);
 			pause.setEnabled(true);
 			// step.setEnabled(true);
-			running = true;
+			simManagerRunning = true;
 
 		}
 
 		@Override
 		public void pauseEvent(SimulationStateEvent e) {
 			System.out.println("UserInterface.StateManager.pauseEvent()");
-
 			play.setEnabled(true);
 			pause.setEnabled(false);
-			// step.setEnabled(true);
-
 		}
 
 		@Override
@@ -844,7 +776,7 @@ public class UserInterface extends JFrame implements ActionListener {
 			pause.setEnabled(false);
 			step.setEnabled(false);
 
-			running = false;
+			simManagerRunning = false;
 			simManager.stopSimulation();
 			JOptionPane.showMessageDialog(f, "Simulation Finished",
 					"Simulation", JOptionPane.INFORMATION_MESSAGE);

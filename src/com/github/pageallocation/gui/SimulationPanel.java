@@ -13,7 +13,7 @@ import javax.swing.JTextField;
 import com.github.pageallocation.algorithms.PageReplacementStrategy;
 import com.github.pageallocation.gui.table.MyDefaultTableModel;
 import com.github.pageallocation.gui.table.PageFaultRenderer;
-import com.github.pageallocation.simulation.InsertionSimulation;
+import com.github.pageallocation.simulation.PageAllocationSimulation;
 
 public class SimulationPanel extends JPanel {
 
@@ -27,7 +27,7 @@ public class SimulationPanel extends JPanel {
 	JScrollPane sc;
 	JLabel label;
 	private PageReplacementStrategy strategy;
-	private InsertionSimulation simulation;
+	private PageAllocationSimulation simulation;
 	private JTextField faults;
 	private JTextField faultRate;
 	static String[] columnNames = { "Frames", "A", "B", "C", "D", "E", "F", "G" };
@@ -66,9 +66,10 @@ public class SimulationPanel extends JPanel {
 		sc.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		sc.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 
-		simulation = new InsertionSimulation(table, model);
 		this.add(sc);
 		this.add(pageFaultsDisplay(), BorderLayout.EAST);
+		setSimulation(new PageAllocationSimulation(table,model));
+
 
 	}
 
@@ -108,7 +109,7 @@ public class SimulationPanel extends JPanel {
 		getFaultRate().setText("");
 		getModel().setDataVector(data, columnNames);
 		getModel().fireTableDataChanged();
-		simulation.clearParams();
+		getSimulation().clearParams();
 		strategy.clearStats();
 	}
 
@@ -144,20 +145,20 @@ public class SimulationPanel extends JPanel {
 		this.table = table;
 	}
 
-	InsertionSimulation getSimulation() {
-		return simulation;
-	}
-
-	void setSimulation(InsertionSimulation simulation) {
-		this.simulation = simulation;
-	}
-
 	PageReplacementStrategy getStrategy() {
 		return strategy;
 	}
 
 	void setStrategy(PageReplacementStrategy strategy) {
 		this.strategy = strategy;
+	}
+
+	public PageAllocationSimulation getSimulation() {
+		return simulation;
+	}
+
+	public void setSimulation(PageAllocationSimulation simulation) {
+		this.simulation = simulation;
 	}
 
 }

@@ -1,12 +1,13 @@
 package com.github.pageallocation.algorithms;
 
+import java.util.List;
 import java.util.concurrent.Callable;
 
-public interface PageReplacementStrategy extends Callable<int[][]> {
+import com.github.pageallocation.algorithms.model.Reference;
 
-	// The primary method performs all the algorithmic replacements and fills a
-	// 2D array
-	public int[][] allocation();
+public interface PageReplacementStrategy extends Callable<List<Reference>> {
+
+	public List<Reference> allocateReferences();
 
 	// This function returns the number of page faults counted.
 	public int faults();
