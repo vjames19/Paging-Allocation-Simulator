@@ -22,7 +22,7 @@ javac -d bin -cp src ./src/com/github/pageallocation/AllocationApp.java
 java -cp bin com.github.pageallocation.AllocationApp
 ```
 
-![paging_sim](./paging_sim.png)
+<img src="./paging_sim.png" width="600" />
 
 ## Simulator Readme
 ======================================
