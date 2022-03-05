@@ -8,8 +8,21 @@ Aimed to be a teaching tool in which you can add a page allocation algorithm and
 
 To compile this application you will need JDK 7
 
+### Terminal Compilation Instructions
 
+If you don't have an IDE, use these terminal steps:
+```
+# create bin directory first
+mkdir bin
 
+# compile
+javac -d bin -cp src ./src/com/github/pageallocation/AllocationApp.java
+
+# run
+java -cp bin com.github.pageallocation.AllocationApp
+```
+
+![paging_sim](./paging_sim.png)
 
 ## Simulator Readme
 ======================================
